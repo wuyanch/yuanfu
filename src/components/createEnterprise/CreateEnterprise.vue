@@ -40,7 +40,7 @@ export default {
     methods:{
         // 进来检查是否有项目
         checkIsPro: function(){
-            this.$axios.get('/index/getAllByUserInfo',{
+            this.$axios.get(this.GLOBAL.serverSrc+'/index/getAllByUserInfo',{
                     params:{
                         rand:new Date().getTime()
                     }
@@ -82,7 +82,7 @@ export default {
                 let _that = this;
                 let params = {proname:this.enterpriseName.replace(/^(\s|\u00A0)+/,'').replace(/(\s|\u00A0)+$/,''),rand:new Date().getTime()}//去左右空格
                 new Promise(function (resolve, reject) {
-                    _that.$axios.post('/index/checkProjectName',_that.$qs.stringify(params)).then((response) => {
+                    _that.$axios.post(_that.GLOBAL.serverSrc+'/index/checkProjectName',_that.$qs.stringify(params)).then((response) => {
                         console.log(response.data.code);
                         resolve(response.data.code);
                     })
@@ -109,7 +109,7 @@ export default {
                             showClose:false
                         }).then(() => {
                             //要加return
-                            return _that.$axios.post('/index/createProject',_that.$qs.stringify(params)).then(function (response) {
+                            return _that.$axios.post(_that.GLOBAL.serverSrc+'/index/createProject',_that.$qs.stringify(params)).then(function (response) {
                                 if(response.data.code == '200'){//创建成功
                                 console.log(response.data)
                                     localStorage.setItem('YF_mainstream_project',_that.enterpriseName.replace(/^(\s|\u00A0)+/,'').replace(/(\s|\u00A0)+$/,''))

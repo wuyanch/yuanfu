@@ -268,7 +268,7 @@ export default {
                     }
                 })
             }else{
-                this.$axios.delete('/index/delete/image',{
+                this.$axios.delete(this.GLOBAL.serverSrc+'/index/delete/image',{
                     params:{
                         'filename':file.name,
                         'proserialno':localStorage.getItem('YF_quotationInformation_proserialno')
@@ -372,7 +372,7 @@ export default {
                         background: 'rgba(0, 0, 0, 0.7)'
                     });
                 }
-                this.$axios.post('/index/upload/image',this.fileData,{
+                this.$axios.post(this.GLOBAL.serverSrc+'/index/upload/image',this.fileData,{
                     'Content-Type': 'multipart/form-data' 
                 },{timeout: 1000*60*10}).then(res =>{
                     //  成功
@@ -440,7 +440,7 @@ export default {
         },
         // 取图片列表
         getListPhoto: function(){
-            this.$axios.get('/index/list/image',{
+            this.$axios.get(this.GLOBAL.serverSrc+'/index/list/image',{
                     params:{
                         proserialno:localStorage.getItem('YF_quotationInformation_proserialno'),
                         rand:new Date().getTime()
@@ -784,7 +784,7 @@ export default {
         },
         //获取业务渠道的内容/index/getAllSalesChannels获取业务渠道列表
         getSalesChannels(){
-            this.$axios.get('/index/getAllSalesChannels').then(response => {
+            this.$axios.get(this.GLOBAL.serverSrc+'/index/getAllSalesChannels').then(response => {
                 this.options = response.data.data;
                 console.log(this.options)
             }).catch(error =>{

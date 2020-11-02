@@ -184,7 +184,7 @@ export default {
         },
         // 取图片列表--得到图片
         getListPhoto: function(){
-            this.$axios.get('/index/list/image',{
+            this.$axios.get(this.GLOBAL.serverSrc+'/index/list/image',{
                     params:{
                         proserialno:localStorage.getItem('YF_quotationInformation_proserialno'),
                         rand:new Date().getTime()
@@ -408,7 +408,7 @@ export default {
             let information_5_0 = JSON.parse(localStorage.getItem('quotationInformation_5_0')).premiunF;
             let information_5_1 = JSON.parse(localStorage.getItem('quotationInformation_5_1')).premiunFP;
           
-            this.$axios.post('/index/saveInquiry',{
+            this.$axios.post(this.GLOBAL.serverSrc+'/index/saveInquiry',{
                 plan:information_2,
                 resp:information_3,
                 conf:information_4,
@@ -594,7 +594,7 @@ export default {
                 &:first-child{
                     text-align: justify;
                     display: inline-block;
-                    width: 70px;
+                    width: 78px;
                     vertical-align: top;
                 }
                 &:first-child::after {
@@ -608,7 +608,7 @@ export default {
                     vertical-align: top;
                 }
                 &:last-child{
-                    width: calc(100% - 90px);
+                    width: calc(100% - 98px);
                     display: inline-block;
                 }
             }

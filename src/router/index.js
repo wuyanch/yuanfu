@@ -5,13 +5,15 @@ Vue.use(Router)
 
 export default new Router({
   scrollBehavior(to,from,savedPosition){
+    console.log(savedPosition);
     if(savedPosition){
       return savedPosition;
     }else{
       return {x:0,y:0}
     }
   },
-
+  base:"/mybp",
+  // mode: 'history',
   routes: [
     {
       path: '/',
@@ -21,7 +23,17 @@ export default new Router({
         // 页面标题title
         title: '员福首页'
       }
-    },{
+    },
+    // {
+    //   path: '/',
+    //   name: 'transferStation',
+    //   component: () => import('@/components/transferStation'),
+    //   meta:{
+    //     // 页面标题title
+    //     title: '加载中...'
+    //   }
+    // },
+    {
       path: '/createEnterprise',
       name: 'createEnterprise',
       component: () => import('@/components/createEnterprise/CreateEnterprise.vue'),
@@ -177,10 +189,18 @@ export default new Router({
     },{
       path:'/overLogin',
       name:'overLogin',
-      component: () => import('@/components/errorPage/overLogin.vue'),
+      component: () => import('@/components/devePage/overLogin.vue'),
       meta:{
         // 页面标题title
         title: '身份过期'
+      }
+    },{
+      path:'/error',
+      name:'error',
+      component: () => import('@/components/devePage/error.vue'),
+      meta:{
+        // 页面标题title
+        title: '错误页面'
       }
     }
 

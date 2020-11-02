@@ -7,7 +7,7 @@ var proxyConfig = require('./proxyConfig');
 
 module.exports = {
   dev: {
-
+    // disableHostCheck: true,
     // Paths
     assetsSubDirectory: 'static',
     assetsPublicPath: '/',
@@ -42,15 +42,16 @@ module.exports = {
     index: path.resolve(__dirname, '../dist/index.html'),
 
     // Paths
-    assetsRoot: path.resolve(__dirname, '../dist'),
-    assetsSubDirectory: 'static',
-    assetsPublicPath: '/',
-
+    assetsRoot: path.resolve(__dirname, '../dist'),//资源根路径 项目打包后存放的路径 即项目目录下的dist文件
+    assetsSubDirectory: 'static',//资源子目录 存放静态资源文件的static，css、js、img
+    assetsPublicPath: '/mybp/',//资源公共路径 ，我们访问静态资源需要额外的前缀,vue项目运行于 二级域名
+    // assetsPublicPath: '/',//vue项目运行于 一级域名
     /**
      * Source Maps
      */
 
-    productionSourceMap: true,
+    //productionSourceMap: true,//去掉编译文件中map文件。在编译好后，我们会看到文件夹下有特别多的.map文件，这些文件主要是帮助我们线上调试代码，查看样式
+    productionSourceMap: false,
     // https://webpack.js.org/configuration/devtool/#production
     devtool: '#source-map',
 
@@ -58,7 +59,8 @@ module.exports = {
     // Surge or Netlify already gzip all static assets for you.
     // Before setting to `true`, make sure to:
     // npm install --save-dev compression-webpack-plugin
-    productionGzip: false,
+    //2020-10-30把gzip打开 productionGzip: false-> productionGzip: true
+    productionGzip: true,
     productionGzipExtensions: ['js', 'css'],
 
     // Run the build command with an extra argument to

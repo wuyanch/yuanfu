@@ -10,7 +10,67 @@
       .gray {-webkit-filter: grayscale(100%);-moz-filter: grayscale(100%);-ms-filter: grayscale(100%); -o-filter: grayscale(100%);filter: grayscale(100%);filter: gray;}
       .bg{position: absolute;top: 0;overflow: hidden;border-radius: 100%;animation: loading 2s linear 0s infinite alternate;}
     	@keyframes loading{ 0%{width: 100%; height: 0%;} 25%{width: 100%; height: 50%;} 50%{width: 100%; height: 100%;} 75%{width: 100%; height: 50%;}  100%{width: 100%; height: 0%;}}
-		</style>
+    </style>
+    <script>
+      console.log("我来过")
+      if(window.location.hash.indexOf('?') == -1){//没有token
+          if(localStorage.getItem('token') && localStorage.getItem('token') != ''){
+
+          }else{
+            location.href = window.location.origin+'/mybp/#/error';
+            // location.href = window.location.origin+'/error';
+          }
+      }else{
+        getToken();
+      }
+      function getToken(){
+            //  let search = window.location.search;
+             let search = window.location.hash;
+             console.log("search"+ window);
+             if(search == ''){//没有带token的页面刷新的
+               if(localStorage.getItem('token') && localStorage.getItem('token') != ''){
+                  location.href = window.location.origin+'/mybp/#/'
+                  // location.href = window.location.origin
+               }else{
+                  location.href = window.location.origin+'/mybp/#/error';
+                  // location.href = window.location.origin+'/error';
+               }
+             }else{
+               let YF_token = this.getSearchString('token', search); //结果：18
+               console.log(search);
+               console.log("YF_token"+YF_token);
+               if((YF_token != undefined || YF_token != '' || YF_token != null) && YF_token){
+                  localStorage.setItem('token',YF_token);
+                  location.href = window.location.origin+'/mybp/#/'
+                  // location.href = window.location.origin
+               }else{
+                  location.href = window.location.origin+'/mybp/#/error';
+                  // location.href = window.location.origin+'/error';
+               }
+             }
+             
+         }
+        function  getSearchString(key, Url) {
+             let str = Url;
+             let arr ;
+             str = str.substring(Number(str.indexOf('?'))+Number(1), str.length); // 获取URL中?之后的字符（去掉第一位的问号）
+             // 以&分隔字符串，获得类似name=xiaoli这样的元素数组
+             if(str.indexOf("&") != -1 ) {
+                 arr = [];
+             }else{
+                 arr = str.split("&");
+             }
+            
+             let obj = new Object();
+ 
+             // 将每一个数组元素以=分隔并赋给obj对象 
+             for (var i = 0; i < arr.length; i++) {
+                 var tmp_arr = arr[i].split("=");
+                 obj[decodeURIComponent(tmp_arr[0])] = decodeURIComponent(tmp_arr[1]);
+             }
+             return obj[key];
+         }
+   </script>
   </head>
   <body>
     <div id="app">

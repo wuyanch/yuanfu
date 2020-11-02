@@ -88,7 +88,7 @@ export default {
         this.proname = localStorage.getItem('YF_mainstream_project');
         this.haveEnterprise = true;
     }else{
-      this.$axios.get('/index/defuatProject',{
+      this.$axios.get(this.GLOBAL.serverSrc+'/index/defuatProject',{
         params:{
           rand:new Date().getTime()
         }
@@ -154,7 +154,7 @@ export default {
     addFollow: function(){
       let that = this;
       let params = {isAttention:localStorage.getItem('YF_mainstream_project_isAttention')== 1? 0:1, procode:localStorage.getItem('YF_mainstream_project_code'),rand:new Date().getTime()}
-            this.$axios.post('/index/isAttention',this.$qs.stringify(params))
+            this.$axios.post(this.GLOBAL.serverSrc+'/index/isAttention',this.$qs.stringify(params))
             .then(response => {
               if(response.data.code == 200){
                 that.isAttention = that.isAttention == 1? 0:1;//改变状态位

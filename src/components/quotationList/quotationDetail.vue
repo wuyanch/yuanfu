@@ -373,7 +373,7 @@ export default {
         },
          // 取图片列表--得到图片
         getListPhoto: function(){
-            this.$axios.get('/index/list/image',{
+            this.$axios.get(this.GLOBAL.serverSrc+'/index/list/image',{
                     params:{
                         proserialno: this.currentId,
                         rand:new Date().getTime()
@@ -419,7 +419,7 @@ export default {
         //获取需要展示的 核保意见
         getInquiryResult: function(){
             let that = this;
-            this.$axios.get('/index/getInquiryResult',{
+            this.$axios.get(this.GLOBAL.serverSrc+'/index/getInquiryResult',{
                 params:{
                     proserialno: this.currentId,
                     random: new Date().getTime()
@@ -439,7 +439,7 @@ export default {
         //获取需要展示的 单位信息内容
         getUnitInformation: function(){
             let that = this;
-            this.$axios.get('/index/getInquiryUnitInformation',{
+            this.$axios.get(this.GLOBAL.serverSrc+'/index/getInquiryUnitInformation',{
                 params:{
                     proserialno: this.currentId,
                     random: new Date().getTime()
@@ -458,8 +458,8 @@ export default {
         },
         //获取需要展示的 业务信息内容
         getBusinessInformation: function(){
-            let that = this;
-            this.$axios.get('/index/getInquiryBusinessInformation',{
+            let that = this;//this.GLOBAL.serverSrc+'/XXX/XXX'
+            this.$axios.get(this.GLOBAL.serverSrc+'/index/getInquiryBusinessInformation',{
                 params:{
                     proserialno: this.currentId,
                     random: new Date().getTime()
@@ -480,7 +480,7 @@ export default {
         //获取需要展示的 计划信息内容
         getInquiryPlan: function(){
             let that = this;
-            this.$axios.get('/index/getInquiryPlan',{
+            this.$axios.get(this.GLOBAL.serverSrc+'/index/getInquiryPlan',{
                 params:{
                     proserialno: this.currentId,
                     random: new Date().getTime()
