@@ -134,7 +134,6 @@
                         multiple
                         ref="upload"
                         :auto-upload="false"
-                        :before-upload="beforeFile"
                         :http-request="fileRequest"
                         :file-list="fileList"
                         :on-change="handleChange"
@@ -179,6 +178,8 @@
 </template>
 
 <script>
+ // 引入image-conversion
+import {compress, compressAccurately, imageConversion} from 'image-conversion';
 import { error } from 'util';
 export default {
     name:'procedureFinish',
@@ -202,7 +203,8 @@ export default {
                 domains:[]
             },
             planNameT:[],//计划名称
-            fileData: '',  // 文件上传数据（多文件合一）
+            planCodeT:[],//计划编码
+            fileData: new FormData(),  // 文件上传数据（多文件合一）
             options:null,//业务渠道的可选择
             loadingPic:null,//上传图片的时候的loading
             loading:false,
@@ -218,45 +220,6 @@ export default {
         handleRemove(file,fileList) {
             console.log(file);
             let that = this;
-            // this.$axios.delete('/index/delete/image',{
-            //         params:{
-            //             'filename':file.name,
-            //             'proserialno':localStorage.getItem('YF_quotationInformation_proserialno')
-            //         }
-            //     },{
-            //         'Content-Type': 'multipart/form-data' 
-            //     }).then(res =>{
-            //         //  成功
-            //         console.log(res);
-            //         console.log('333');
-            //         if(res.data.code=="200"){
-            //             allPic.forEach(function(currentValue,index){
-            //                 if(currentValue.name == file.name){
-            //                     allPic.splice(index,1);
-            //                     let premiunF = {"picList":allPic}
-            //                         localStorage.setItem("quotationInformation_pic",JSON.stringify(premiunF));
-            //                 }
-            //             })
-            //             that.fileList.forEach(function(current,index){
-            //                 if(file.name == current.name){
-            //                     that.fileList.splice(index,1);
-            //                 }
-            //             })
-            //             that.$message({
-            //                 message: '图片删除成功',
-            //                 type: 'success'
-            //             });
-            //         }else{
-            //             that.$alert('图片删除失败，请重新删除','',{
-            //                 confirmButtonText:'好的，我知道了'
-            //             })
-            //         }
-            //     }).catch(error =>{
-            //         this.$alert('抱歉，程序开小差了o(╥﹏╥)o，请稍后再试，或者联系IT人员','',{
-            //             confirmButtonText:'好的，我明白了'
-            //         }).catch(()=>{})
-            //     })
-           
             if(file.status == 'ready'){
                 this.fileList.forEach(function(current,index){
                     if(file.name == current.name){
@@ -302,7 +265,8 @@ export default {
                             confirmButtonText:'好的，我知道了'
                         })
                     }
-                }).catch(error =>{
+                })
+                .catch(error =>{
                     this.$alert('抱歉，程序开小差了o(╥﹏╥)o，请稍后再试，或者联系IT人员','',{
                         confirmButtonText:'好的，我明白了'
                     }).catch(()=>{})
@@ -315,128 +279,200 @@ export default {
             this.dialogVisible = true;
         },
         /**
-         * 文件上传之前 判断格式
+         * 文件上传之前 判断格式:before-upload="beforeFile accept=".jpg,.jpeg,.png,.bmp,.JPG,.JPEG,.BMP""
          * */
-        beforeFile(file){
-            let name = file.name, flag = false;
-            let type = name.substring(name.lastIndexOf('.')+1)
-            if (type == 'png' || type == 'jpg' || type == 'bmp'|| type == 'jpeg') {
-                // 获取单前的图片
-                // if(!!localStorage.getItem('quotationInformation_pic') && localStorage.getItem(' quotationInformation_pic')!=''){
-                //    let pic = JSON.parse(localStorage.getItem('quotationInformation_pic')).picList;
-                //    pic.forEach(function(current,index){
-                //        if(name ==current.name){
-                //             flag = true;
-                //         }
-                //    })
-                //    if(flag){
-                //         this.$message({
-                //             message: '已上传过该图片，请勿重复上传',
-                //             type: 'warning'
-                //         });
-                //         return false
-                //    }else{
-                //        return true
-                //    }
-                // }else{
-                    
-                // }
-                return true
-                
-            }else{
-                this.$message({
-                            message: '请上传符合格式的图片',
-                            type: 'warning'
-                        });
-                return false
-            }
-        },
+        // beforeFile(file){
+        //     let name = file.name, flag = false;
+        //     let type = name.substring(name.lastIndexOf('.')+1)
+        //     if (type == 'png' || type == 'jpg' || type == 'bmp'|| type == 'jpeg') {
+        //         return true
+        //     }else{
+        //         this.$message({
+        //                     message: '请上传符合格式的图片',
+        //                     type: 'warning'
+        //                 });
+        //         return false
+        //     }
+        // },
+    //    beforeFile (file) { 
+    //         let isLt2M = file.size / 1024  < 1 // 判定图片大小是否小于4MB
+    //         if (!isLt2M) {
+    //             console.log(file) // 压缩到400KB,这里的400就是要压缩的大小,可自定义
+    //             imageConversion.compressAccurately(file, 400).then(res => { // console.log(res)
+    //                 resolve(res)
+    //                 console.log("压缩")
+    //                 console.log(res);
+    //                 this.fileData.append('files', res);  // append增加数据
+    //             })
+    //         }
+           
+        //    return new Promise((resolve, reject) => {
+        //         let isLt2M = file.size / 1024  < 1 // 判定图片大小是否小于4MB
+        //         if (isLt2M) {
+        //             resolve(file)
+        //         }
+        //         console.log(file) // 压缩到400KB,这里的400就是要压缩的大小,可自定义
+        //         imageConversion.compressAccurately(file, 400).then(res => { // console.log(res)
+        //             resolve(res)
+        //             console.log("压缩")
+        //             console.log(res);
+        //             this.fileData.append('files', res);  // append增加数据
+        //         })
+        //     })
+        // }, 
         // 上传文件
 		fileRequest(file) {
-            this.fileData.append('files', file.file);  // append增加数据
-		},
+            // this.fileData.append('files', file.file);  // append增加数据
+        },
+     
         uploadFile(fun) {
             let that = this;
-            this.fileData = new FormData();  // new formData对象
-            this.$refs.upload.submit();  // 提交调用uploadFile函数
-             console.log(this.fileData.get("files"))
-
-            this.fileData.append('proserialno',localStorage.getItem('YF_quotationInformation_proserialno'));
-            if(this.fileData.get("files") != null){
-                if(this.loading == false){
-                    this.loadingPic = this.$loading({
-                        lock: true,
-                        // text: '图片上传中，请勿操作',
-                        text: '正在拼命制作预览页，请勿操作',
-                        spinner: 'el-icon-loading',
-                        background: 'rgba(0, 0, 0, 0.7)'
-                    });
-                }
-                this.$axios.post(this.GLOBAL.serverSrc+'/index/upload/image',this.fileData,{
-                    'Content-Type': 'multipart/form-data' 
-                },{timeout: 1000*60*10}).then(res =>{
-                    //  成功
-                    console.log(res);
-                    console.log('8888');
-                    console.log("我是this.fileList")
-                    console.log(this.fileList)
-                    // 如何成功上传，则200
-                    if(res.data.code == 200){
-                        // res.data.data.forEach(function(current,index){
-                        //      that.fileListCopy.push({url: current.url, name:current.fileName, status: '1'})//上传成功之后把值添加到imglist中
-                        // })
-                        // that.fileList.push({url: res.data.data.url, name:res.data.data.fileName, status: '1'})//上传成功之后把值添加到imglist中
-                        // 拷贝一份到that.fileList
-                        // that.fileList = JSON.parse(JSON.stringify(that.fileListCopy));
-
-                        // let premiunF = {"picList":that.fileListCopy}
-                        //     localStorage.setItem("quotationInformation_pic",JSON.stringify(premiunF));
-                        //     this.fileList = JSON.parse(localStorage.getItem('quotationInformation_pic')).picList;
-                           
-                            this.fileList.forEach(function(current,index){
-                                that.$set(current,"status",'success');//改变状态位
-                            })
-                            console.log("我是this.fileList2")
-                            console.log(this.fileList)
-                    }else{
-                    // 如果上传不成功
-                        that.$alert('图片上传失败，请检查你的网络，刷新重新上传','',{
-                            confirmButtonText:'好的'
-                        }).then(()=>{})
-                    }
-                    fun(res.data.code);
-                }).catch(error => {
-                     console.log("上传图片的报错error")
-                    console.log(error)
-                    this.$alert('抱歉，程序开小差了o(╥﹏╥)o，请稍后再试，或者联系IT人员','',{
-                        confirmButtonText:'好的，我知道了'
-                    }).then(()=>{
-                        if(this.loading == false){
-                            this.loadingPic.close();
+            // this.fileData = new FormData();  // new formData对象
+            // this.$refs.upload.submit();  // 提交调用uploadFile函数
+            // console.log(this.fileData.getAll("files"))
+            Promise.all([
+               this.compressPhoto()
+            ]).then(resp=>{
+                console.log(this.fileData.getAll("files"))
+                that.fileData.append('proserialno',localStorage.getItem('YF_quotationInformation_proserialno'));
+                if(that.fileData.get("files") != null){
+                    that.$axios.post(that.GLOBAL.serverSrc+'/index/upload/image',that.fileData,{
+                        'Content-Type': 'multipart/form-data' 
+                    },{timeout: 1000*60*10}).then(res =>{
+                        //  成功
+                        console.log(res);
+                        console.log('8888');
+                        console.log("我是this.fileList")
+                        console.log(that.fileList)
+                        // 如何成功上传，则200
+                        if(res.data.code == 200){
+                                that.fileList.forEach(function(current,index){
+                                    that.$set(current,"status",'success');//改变状态位
+                                })
+                                console.log("我是this.fileList2")
+                                console.log(that.fileList)
+                        }else{
+                        // 如果上传不成功
+                            that.$alert('图片上传失败，请检查你的网络，刷新重新上传','',{
+                                confirmButtonText:'好的'
+                            }).then(()=>{})
                         }
-                        this.loading = false;
-                    }).catch(()=>{
-                       if(this.loading == false){
-                            this.loadingPic.close();
-                        }
-                        this.loading = false;
+                        fun(res.data.code);
+                    }).catch(error => {
+                        console.log("上传图片的报错error")
+                        console.log(error)
+                        that.$alert('抱歉，程序开小差了o(╥﹏╥)o，请稍后再试，或者联系IT人员','',{
+                            confirmButtonText:'好的，我知道了'
+                        }).then(()=>{
+                            if(that.loading == false){
+                                that.loadingPic.close();
+                            }
+                            that.loading = false;
+                        }).catch(()=>{
+                        if(that.loading == false){
+                                that.loadingPic.close();
+                            }
+                            that.loading = false;
+                        })
                     })
-                })
-            }else{
-                fun("100");
-            }
+                }else{
+                    fun("100");
+                }
+            })
+           
+        },
+        //压缩图片上传
+        compressPhoto:function(){
+            
+            let _that = this;
+            this.fileData.delete("files");
+            this.fileData.delete("proserialno");
+            return new Promise((resolve, reject) => {
+                /* 你的逻辑代码 */
+                console.log("我是compressPhoto");
+                console.log(this.fileList);
+                let flag = true;
+                if(_that.fileList.length != 0){
+                    if(_that.loading == false){
+                        _that.loadingPic = _that.$loading({
+                            lock: true,
+                            // text: '图片上传中，请勿操作',
+                            text: '正在拼命制作预览页，请勿操作',
+                            spinner: 'el-icon-loading',
+                            background: 'rgba(0, 0, 0, 0.7)'
+                        });
+                    }
+                    _that.fileList.forEach(function(current,index){
+                        if(current.status == 'ready'){
+                            let isLt2M = current.size / 1024 / 1024 < 2 // 判定图片大小是否小于2MB
+                            if (!isLt2M) {
+                            flag = false;
+                            console.log(current) // 压缩到400KB,这里的400就是要压缩的大小,可自定义
+                            imageConversion.compressAccurately(current.raw,1024).then(res=>{
+                                    //The res in the promise is a compressed Blob type (which can be treated as a File type) file;
+                                    console.log(res);
+                                    // let myFile = new File([res], current.name);
+                                    flag = true;
+                                    let myFile = new window.File([res], current.name,{type: current.raw.type})
+                                    _that.fileData.append('files', myFile);
+                                    if(index ==  _that.fileList.length-1 && flag){
+                                        console.log(_that.fileData.getAll('files'))
+                                        return resolve();
+                                    }
+                                })
+                            
+                            }else{
+                                _that.fileData.append('files', current.raw);
+                                if(index ==  _that.fileList.length-1 && flag){
+                                    console.log(_that.fileData.getAll('files'))
+                                    return resolve();
+                                }
+                            }
+                            
+                        }else{
+                            if(index ==  _that.fileList.length-1 && flag){
+                                console.log(_that.fileData.getAll('files'))
+                                return resolve();
+                            }
+                        }
+                    
+                    })
+                }else{
+                    return resolve();
+                }
+            });
+            
         },
         //监控上传文件列表--检查图片是否重复
         handleChange(file, fileList) {
+            let _that = this;
             let existFile = fileList.slice(0, fileList.length - 1).find(f => f.name === file.name);
             if (existFile) {
                 this.$message({
-                    message: '新选择的图片已经存在',
+                    message: '新选择的图片已经存在,已剔除',
                     type: 'warning'
                 });
                 fileList.pop();
+                // this.fileList = fileList;
+                // return false;
+            }else{
+                let name = file.name, flag = false;
+                let type = name.substring(name.lastIndexOf('.')+1)
+                if (type == 'png' || type == 'jpg' || type == 'bmp'|| type == 'jpeg') {
+                    // return true;
+                }else{
+                    this.$message({
+                                message: '请上传符合格式的图片,不符合格式已剔除',
+                                type: 'warning'
+                            });
+                    fileList.pop();
+                    // this.fileList = fileList;
+                    // return false;
+                }
             }
             this.fileList = fileList;
+            console.log("我是fileList:changeon");
+            console.log(this.fileList);
         },
         // 取图片列表
         getListPhoto: function(){
@@ -452,7 +488,7 @@ export default {
                     console.log(res);
                     console.log('333');
                     if(res.data.code=="200"){
-                        if( res.data.data.length != 0){
+                        if( res.data.data != null){
                              res.data.data.forEach(function(current,index){
                             // that.$set(current,"status",'success');//改变状态位
                                 current.status = 'success';
@@ -492,7 +528,7 @@ export default {
         //下一步
         goNext: function(){
             let that = this;
-            if(this.businessInformation != ''){
+            if(that.DataArrangement()){
                 this.uploadFile(function(response){
                     if(response == 200 || response == 100){
                         if(response == 200){
@@ -501,10 +537,9 @@ export default {
                             //         message: '图片上传成功',
                             //         type: 'success'
                             //     });
-                            that.DataArrangement();
+                            // that.DataArrangement();
                         }else if(response == 100){
-                            that.DataArrangement();
-                            
+                            // that.DataArrangement();
                         }
                         that.$router.push({path:'procedurePreview'})
                     }else if(response != 200 && response != 100){
@@ -516,7 +551,7 @@ export default {
                     
                 });
             }else{
-                this.$alert('请填好业务渠道，再提交','',{
+                this.$alert('请完成“业务信息”相关必填内容','',{
                     confirmButtonText:'好的'
                 }).catch(()=>{})
             }
@@ -527,7 +562,7 @@ export default {
             this.pureData();
             let that = this;
             that.loading = true;
-             this.uploadFile(function(response){
+            this.uploadFile(function(response){
                 if(response == 200 || response == 100){
                     if(response == 200){
                         // that.loadingPic.close();
@@ -573,14 +608,18 @@ export default {
         //进入该页面的一个初始化
         getInitData: function(){
             let tempc = [];
+            let _that = this;
             let information_2 = JSON.parse(localStorage.getItem('quotationInformation_2'));
             let information_3 = JSON.parse(localStorage.getItem('quotationInformation_3'));
             let information_4 = JSON.parse(localStorage.getItem('quotationInformation_4'));
-            this.planNameT = [];
+            // this.planNameT = [];//计划名字
+            // this.planCodeT = [];//计划编码
             //对比第一步的顺序与暂存里的顺序对不对的上
+            //把第一步的计划压入
             for(let i = 0; i < information_2.distributionPlan.length; i++){
                 //压入名字
                 this.planNameT.push(information_2.distributionPlan[i].activeName)
+                this.planCodeT.push(information_2.distributionPlan[i].planCode)
                 this.dynamicValidateFormOpen.push({open:false})
             }
             this.planNameT.forEach(function(currentValue,index){
@@ -673,13 +712,14 @@ export default {
                 if(!!localStorage.getItem('quotationInformation_5_0')&&!!localStorage.getItem('quotationInformation_5_1')&&localStorage.getItem('quotationInformation_5_1')!=''){
                     let current_5 = JSON.parse(localStorage.getItem('quotationInformation_5_1')).premiunFP
                     current_5.forEach(function(currentValue_p,index_p){
-                        if(currentValue_p.planName == currentValue){
+                        if(currentValue_p.planCode == _that.planCodeT[index]){//currentValue_p.planName == currentValue
                             premiun_5 = currentValue_p.premium;
                         }
                     })
                 }
                 tempc.push({
                     planName:currentValue,//名称
+                    planCode:_that.planCodeT[index],//计划编码
                     premium:premiun_5,//期望保费
                     basicInformation:information_2.distributionPlan[index],//基础信息
                     insuranceLiability:temD,//险种责任
@@ -688,7 +728,7 @@ export default {
            
             this.expectedPremiumList.domains = tempc;
 
-            let _that = this;
+            
             this.expectedPremiumList.domains.forEach(function(currentD,indexD){
                 _that.totalPeople += Number(currentD.basicInformation.numberOfInsured);
                 _that.totalPremium += Number(currentD.premium);
@@ -754,6 +794,7 @@ export default {
                     }
                 })
             }
+            return flag;
         },
         //单纯数据处理
         pureData(){
@@ -772,7 +813,10 @@ export default {
                     expectedPremiumList: this.expectedPremiumList.domains,
                 }
                 for(let i = 0 ; i < this.expectedPremiumList.domains.length; i++){
-                    premiumFPT.push({planName:this.expectedPremiumList.domains[i].planName,premium:this.expectedPremiumList.domains[i].premium});
+                    premiumFPT.push({
+                        planName:this.expectedPremiumList.domains[i].planName,
+                        planCode:this.expectedPremiumList.domains[i].planCode,
+                        premium:this.expectedPremiumList.domains[i].premium});
                 }
                 let quotationInformation = {"premiumPage":inform};
                         localStorage.setItem("quotationInformation_5",JSON.stringify(quotationInformation));
@@ -784,11 +828,12 @@ export default {
         },
         //获取业务渠道的内容/index/getAllSalesChannels获取业务渠道列表
         getSalesChannels(){
+            let _that = this;
             this.$axios.get(this.GLOBAL.serverSrc+'/index/getAllSalesChannels').then(response => {
-                this.options = response.data.data;
-                console.log(this.options)
+                _that.options = response.data.data;
+                console.log(_that.options)
             }).catch(error =>{
-                this.$alert('抱歉，程序开小差了o(╥﹏╥)o，请稍后再试，或者联系IT人员','',{
+                _that.$alert('抱歉，程序开小差了o(╥﹏╥)o，请稍后再试，或者联系IT人员','',{
                     confirmButtonText:'好的，我明白了'
                 }).catch(()=>{})
             })

@@ -152,7 +152,8 @@ export default {
                     numberOfInsured: '',//投保人数
                     averageAge: '',//平均年龄
                     occupationCategory:'1-3类',//职业类别
-                    jobDescription:''//工种描述
+                    jobDescription:'',//工种描述
+                    planCode:localStorage.getItem('YF_quotationInformation_proserialno')+'01',//计划编码
                 }]
             },
             active:0,
@@ -225,7 +226,7 @@ export default {
         },
         //删除一组
         removeDomain(item) {
-            var index = this.dynamicValidateForm.domains.indexOf(item)
+            var index = this.dynamicValidateForm.domains.indexOf(item);
             if (index !== -1 && this.dynamicValidateForm.domains.length != 1) {
                 this.$confirm('你确定要删除计划'+(index+1)+'吗？','',{
                     confirmButtonText:'确定删除',
@@ -277,6 +278,8 @@ export default {
                             '5类及以上':'使用车床、铣床、剪床等大型机械将五金原料按图纸样品加工成各种零件/建筑工地工人/涉及2米及以上工作等。'
                         }
                     )
+                    // let nowPlanCodeNum = this.dynamicValidateForm.domains[this.dynamicValidateFormOpen.length-1].planCode;
+                    // nowPlanCodeNum = (Number(nowPlanCodeNum.substr(-2))+1)>9?(Number(nowPlanCodeNum.substr(-2))+1):'0'+(Number(nowPlanCodeNum.substr(-2))+1);
                     this.dynamicValidateForm.domains.push({
                         activeName: '',//活动名称
                         personnelType:'员工',//人员类型
@@ -284,7 +287,8 @@ export default {
                         numberOfInsured:'',//投保人数
                         averageAge:'',//平均年龄
                         occupationCategory:'1-3类',//职业类别
-                        jobDescription:''//工种描述
+                        jobDescription:'',//工种描述
+                        planCode:localStorage.getItem('YF_quotationInformation_proserialno')+'0'+ new Date().getTime(),//计划编码
                     });
                     this.dynamicValidateFormOpen.unshift({
                         open:false

@@ -184,6 +184,7 @@ export default {
         },
         // 取图片列表--得到图片
         getListPhoto: function(){
+            let _that = this;
             this.$axios.get(this.GLOBAL.serverSrc+'/index/list/image',{
                     params:{
                         proserialno:localStorage.getItem('YF_quotationInformation_proserialno'),
@@ -195,15 +196,15 @@ export default {
                     //  成功
                     console.log(res);
                     console.log('333');
-                    this.isPicList = true;
+                    _that.isPicList = true;
                     if(res.data.code=="200"){
-                        if( res.data.data.length != 0){
+                        if( res.data.data != null){
                              res.data.data.forEach(function(current,index){
                             // that.$set(current,"status",'success');//改变状态位
                                 current.status = 'success';
                             })
-                            this.picList = res.data.data;
-                            this.getPhotoList();
+                            _that.picList = res.data.data;
+                            _that.getPhotoList();
                         }
                        
                         
@@ -211,7 +212,7 @@ export default {
                        
                     }
                 }).catch(error =>{
-                    this.$alert('抱歉，程序开小差了o(╥﹏╥)o，请稍后再试，或者联系IT人员','',{
+                    _that.$alert('抱歉，程序开小差了o(╥﹏╥)o，请稍后再试，或者联系IT人员','',{
                         confirmButtonText:'好的，我明白了'
                     }).catch(()=>{})
                 })
@@ -421,19 +422,19 @@ export default {
                 'Content-Type':'application/json'
             }).then(response=>{                
                  console.log(response); 
-                 this.loadingTJ = false;
+                 that.loadingTJ = false;
                  if(response.data.code == 200){//上传成功
                     that.$router.push({name:'procedureFinish',params:{"proserialno":localStorage.getItem('YF_quotationInformation_proserialno')}})
                  }else{//上传报错
-                    this.loadingTJ = false;
-                    this.$alert('抱歉，程序开小差了o(╥﹏╥)o，请稍后再试，或者联系IT人员','',{
+                    that.loadingTJ = false;
+                    that.$alert('抱歉，程序开小差了o(╥﹏╥)o，请稍后再试，或者联系IT人员','',{
                         confirmButtonText:'好的，我知道了'
                     }).catch(()=>{})
 
                  }               
             }).catch(()=>{
-                this.loadingTJ = false;
-                this.$alert('抱歉，程序开小差了o(╥﹏╥)o，请稍后再试，或者联系IT人员','',{
+                that.loadingTJ = false;
+                that.$alert('抱歉，程序开小差了o(╥﹏╥)o，请稍后再试，或者联系IT人员','',{
                     confirmButtonText:'好的，我知道了'
                 }).catch(()=>{})
             })

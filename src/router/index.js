@@ -12,8 +12,7 @@ export default new Router({
       return {x:0,y:0}
     }
   },
-  base:"/mybp",
-  // mode: 'history',
+  // base:"/mybp",//正式环境需要添加的二级域名
   routes: [
     {
       path: '/',

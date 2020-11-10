@@ -3,8 +3,10 @@
         <div class="develop">
             <div class="develop-content">
                 <img :src="src" alt="">
-                <p>一不小心走进了错误页面，请关闭重新进入哦~</p>
+                <p>一不小心走进了错误页面~</p>
+                <div class="button-zy"><a href="https://open.weixin.qq.com/connect/oauth2/authorize?appid=wx8016693d70c04bd3&redirect_uri=http%3A%2F%2Fwx1.taikang95522.com%2Fjxgj%2FMainTitle.action?function=YFProject&response_type=code&scope=snsapi_base&state=1#wechat_redirect">回到主页</a></div>
             </div>
+          
         </div>
         
     </div>
@@ -41,29 +43,23 @@ export default {
     width: 100%;
     p{
         font-size: 14px;
-        margin-top: 20px;
+        margin-top: 10px;
     }
 }
-.button-btn{
-    text-align: center;
-    position: absolute;
-    bottom: 50px;
-    left: 50%;
-    transform: translateX(-50%);
+.button-zy{
+    margin-top: 60px;
     width: 100%;
-    button{
+    a{
         width: 150px;
         height: 38px;
         border-radius: 5px;
         position: relative;
         overflow: hidden;
-        margin-top: 30px;
-        &:first-child{
-            background: inherit;
-            border: 1px solid #60b3ff;
-            color: #60b3ff;
-        }
+        border: 1px solid #60b3ff;
+        text-decoration: none;
+        color:#60b3ff;
+        padding: 10px 25px;
+        font-size: 14px;
     }
-
 }
 </style>

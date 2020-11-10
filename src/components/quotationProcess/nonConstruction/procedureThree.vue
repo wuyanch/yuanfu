@@ -145,6 +145,7 @@ export default {
             threeIndex:'',
             information_3_falg:[],//为缓存里计划对不对的上的flag
             planNameT:[],//将上一步的名字压进去
+            plancodeT:[],//将上一步的计划编码压进去
             planInsure:[],//将上一步的险种code大类压进去
             loading:false,//点击暂存出现的圈圈
             foucesTimer:null,//ios键盘回落参数
@@ -219,13 +220,18 @@ export default {
             // this.editSuccessList[index][index1].list.splice(index2,1,false)
             this.editSuccessList[index][index1].splice(index2,1,false)
             console.log(index,index1)
-            this.conditionsList.domains[index].data[index1].responsibilityData[0].level[0].resp_conditionList.forEach(function(current,index){
+            this.conditionsList.domains[index].data[index1].responsibilityData[index2].level[0].resp_conditionList.forEach(function(current,index){
                 current.levelvalue = current.levelvalue == undefined || current.levelvalue == ''? 0 : Number(current.levelvalue);
                 console.log(current.resp_condition.indexOf('%') != -1)
                 if(current.resp_condition.indexOf('%') != -1){//含有%
                     if(current.levelvalue > 100){
                         current.levelvalue = 100;
                     }else if(current.levelvalue < 0){
+                         current.levelvalue = 0;
+                    }
+                }
+                if(current.resp_condition.indexOf('元') != -1 || current.resp_condition.indexOf('天') != -1){//含有元
+                    if(current.levelvalue < 0){
                          current.levelvalue = 0;
                     }
                 }
@@ -394,7 +400,8 @@ export default {
             //那最新的和存储里的对比
             //----------假如有暂存过
             let information_4,information_3;
-            let planNameT_3 = [];
+            let planNameT_3 = [];//名字
+            let plancodeT_3 = [];//计划编码
             let tempC = [];
             let that = this;
 
@@ -406,6 +413,7 @@ export default {
             //一、先匹配名字---获得第三步以及暂存的第四步的名字
             for(let j = 0; j < information_3.configurationResponsibility.length;j++){
                 planNameT_3.push(information_3.configurationResponsibility[j].planName)
+                plancodeT_3.push(information_3.configurationResponsibility[j].planCode)
             }
             
             if(!!localStorage.getItem('quotationInformation_4') && localStorage.getItem('quotationInformation_4')!=''){
@@ -416,7 +424,7 @@ export default {
                     let isPushflag = false;//不等于false， 等于true
                     let recodeK ;
                     for(let k = j; k < resetInformation.length;k++){
-                        if(planNameT_3[j] == resetInformation[k].planName){
+                        if(plancodeT_3[j] == resetInformation[k].planCode){//planNameT_3[j] == resetInformation[k].planName
                             isPushflag = true;
                             recodeK = k;
                         }
@@ -478,6 +486,7 @@ export default {
 
                             let param = {
                                 planName: planNameT_3[j],//计划名称
+                                planCode: plancodeT_3[j],//计划名称编码
                                 data:JSON.parse(JSON.stringify(tempData))
                             }
                             tempC.push(param);
@@ -487,6 +496,7 @@ export default {
                             let tep = JSON.parse(JSON.stringify(that.conditionsList.domains[j].data))//----conditionsListOrigin
                             let param = {
                                     planName: planNameT_3[j],//计划名称
+                                    planCode: plancodeT_3[j],//计划名称编码
                                     data:JSON.parse(JSON.stringify(tep))
                                 }
                                 tempC.push(param);
@@ -496,6 +506,7 @@ export default {
                         let tep = JSON.parse(JSON.stringify(that.conditionsList.domains[j].data))//----conditionsListOrigin
                         let param = {
                             planName: planNameT_3[j],//计划名称
+                            planCode: plancodeT_3[j],//计划名称编码
                             data:JSON.parse(JSON.stringify(tep))
                         }
                         tempC.push(param);
@@ -525,7 +536,9 @@ export default {
             if(!!localStorage.getItem('quotationInformation_3')&&localStorage.getItem('quotationInformation_3')!=''){
                 information = JSON.parse(localStorage.getItem('quotationInformation_3'));
                 for(let j = 0; j < information.configurationResponsibility.length;j++){
-                    this.planNameT.push(information.configurationResponsibility[j].planName)
+                    this.planNameT.push(information.configurationResponsibility[j].planName);
+                    this.plancodeT.push(information.configurationResponsibility[j].planCode);
+                    
                 }
                 console.log(this.planNameT);
             }
@@ -585,6 +598,7 @@ export default {
                 //形成新的初始值
                 _that.conditionsList.domains.push({
                     planName: this.planNameT[k],//计划名称
+                    planCode: this.plancodeT[k],//计划名称编码
                     data:JSON.parse(JSON.stringify(riskData))
                 })
             }

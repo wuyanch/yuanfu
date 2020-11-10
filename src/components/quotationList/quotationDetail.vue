@@ -155,7 +155,7 @@
                                                                     <span class="mony-before">{{item41.insureamount | numFilterBefore}}</span>.<span class="mony-after">{{item41.insureamount | numFilterAfter}}</span>
                                                                     </span> {{item41.amountunit}}</span>
                                                                 <div  v-if="item41.confList != null">
-                                                                    <p class="kind-explain-1 desc" v-for="(item41_sub,index41_sub) in item41.confList" :key="index41_sub">
+                                                                    <p class="kind-explain-1 desc kind-explain-nochild" v-for="(item41_sub,index41_sub) in item41.confList" :key="index41_sub">
                                                                         <span>{{item41_sub.levelname}}:</span>
                                                                         <span>
                                                                             {{item41_sub.levelvalue}}
@@ -228,7 +228,7 @@
                                                                 <span class="hb-money"  v-if="item41.hbamount != null"><i class="hb-money-f">￥</i><span class="mony"><span class="mony-before">{{item41.hbamount | numFilterBefore}}</span>.<span class="mony-after">{{item41.hbamount | numFilterAfter}}</span></span></span>
                                                             
                                                                 <div  v-if="item41.confList != null">
-                                                                    <p class="kind-explain-1 desc" v-for="(item41_sub,index41_sub) in item41.confList" :key="index41_sub">
+                                                                    <p class="kind-explain-1 desc kind-explain-nochild" v-for="(item41_sub,index41_sub) in item41.confList" :key="index41_sub">
                                                                         <span>{{item41_sub.levelname}}:</span>
                                                                         <span v-if="item41_sub.hbvalue != null"><i class="after-hbchange">{{item41_sub.hbvalue}}</i>
                                                                             <el-tooltip placement="top" class="item" effect="dark" v-if="item41_sub.hbvalue != item41_sub.levelvalue">
@@ -281,7 +281,7 @@
                                                                 <div class="kind-explain-1 kind-explain-2 desc" v-if="item42.confList != null">
                                                                     <p  v-for="(item42_sub,index42_sub) in item42.confList" :key="index42_sub">
                                                                     <span>{{item42_sub.levelname}}:</span>
-                                                                        <span v-if="item42_sub.hbvalue != null"><i class="after-hbchange">{{item42_sub.hbvalue}}</i>
+                                                                        <span v-if="item42_sub.hbvalue != null"><i class="after-hbchange" v-if="item42_sub.hbvalue < 0">按照社保标准</i><i v-else class="after-hbchange">{{item42_sub.hbvalue}}</i>
                                                                             <el-tooltip placement="top" class="item" effect="dark" v-if="item42_sub.hbvalue != item42_sub.levelvalue">
                                                                                 <div slot="content">申请设置条件为：{{item42_sub.levelvalue}}</div>
                                                                                 <el-button class="hbchange"><i class="el-icon-warning-outline"></i>该数值核保有改动</el-button>
@@ -355,8 +355,8 @@ export default {
         }
     },
     created(){
-        this.currentId = this.$route.params.id;
-        this.currentStatus = this.$route.params.status;
+        this.currentId = this.$route.query.id;
+        this.currentStatus = this.$route.query.status;
         this.enterpriseCurName = localStorage.getItem('YF_mainstream_project');
         this.getAllContent();
         console.log(this.currentId, this.currentStatus)
@@ -386,7 +386,7 @@ export default {
                     console.log('333');
                     this.isPicList = true;
                     if(res.data.code=="200"){
-                        if( res.data.data.length != 0){
+                        if( res.data.data != null){
                              res.data.data.forEach(function(current,index){
                             // that.$set(current,"status",'success');//改变状态位
                                 current.status = 'success';
@@ -808,8 +808,8 @@ export default {
         ul {
             list-style-type: none;
             li{
-                width: 74px;
-                height: 74px;
+                min-width: 74px;
+                min-height: 74px;
                 display: inline-block;
                 img{
                     width: 100%;
@@ -826,7 +826,7 @@ export default {
                 &:first-child{
                     text-align: justify;
                     display: inline-block;
-                    width: 70px;
+                    width: 78px;
                     vertical-align: top;
                 }
                 &:first-child::after {
@@ -840,7 +840,7 @@ export default {
                     vertical-align: top;
                 }
                 &:last-child{
-                    width: calc(100% - 90px);
+                    width: calc(100% - 98px);
                     display: inline-block;
                 }
             }
@@ -925,7 +925,7 @@ export default {
     ul{
         list-style-type: none;
         li{
-            margin-top: 5px;
+            margin-top: 10px;
             div{
                 margin-top: 5px;
                 position: relative;
@@ -935,7 +935,11 @@ export default {
                         padding: 3px 0;
                     }
                 }
+                div.kind-explain-nochild{
+                    margin-top: 5px;
+                }
             }
+            
             p{
                 span{
                     display: inline-block;
@@ -948,13 +952,22 @@ export default {
             .kind-explain-1{
                 width: 7rem;
                 padding-left: 1em;
-                margin-top: .15rem;
+                // margin-top: .15rem;
                 span{
                     text-indent: 0;
                 }
             }
+           
             .kind-explain-2{
                 margin-left: 2em;
+                // padding-left: 2em;
+            }
+            .kind-explain-1>p{
+                line-height: 10px;
+                margin-top: 5px;
+            }
+            div.kind-explain-nochild{
+                margin-top: 5px;
             }
             .after-hbchange{
                 // color: red;
@@ -967,6 +980,7 @@ export default {
                 padding: 5px 5px 5px 2px;
                 color: #62b4ff;
                 text-decoration: #62b4ff;
+                background: inherit;
             }
             .hb-money{
                 color: #eb2020;

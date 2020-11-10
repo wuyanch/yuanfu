@@ -12,12 +12,12 @@
     </div>
     <!-- 主体内容 -->
     <div class="main">
-      <!-- 保费展示 -->
-      <div class="Premium">
+      <!-- 保费展示 2020-11-10注释（不上线）-->
+      <!-- <div class="Premium">
         <ul class="Premium-ul">
           <li v-for="(item,index) in variousPremiums" :key="index"><span>{{item.premiums}}</span><span>{{item.name}}</span></li>
         </ul>
-      </div>
+      </div> -->
       <!-- 服务展示 -->
       <div class="service">
         <!-- 询报价 -->
@@ -27,16 +27,16 @@
               <li :class="{ newLaunch: item.ifNew }" v-for="(item,index) in quotedPriceList" :key="index" :data-state="item.state" @click="modularGo(item.address)" :vkshop-event-name="item.name" vkshop-event-type="click"><img :src="item.src" alt=""><span>{{item.name}}</span></li>
           </ul>
         </div>
-        <!-- 业务xx -->
+        <!-- 承保保全 -->
         <div>
-          <p class="service-title">业务xx</p>
+          <p class="service-title">承保保全</p>
           <ul class="service-ul">
               <li :class="{ uncultivated: item.ifDevlop }" v-for="(item,index) in vocationalWorkList" :key="index" :data-state="item.state" @click="modularGo(item.address)" :vkshop-event-name="item.name" vkshop-event-type="click"><img :src="item.src" alt=""><span>{{item.name}}</span></li>
           </ul>
         </div>
-        <!-- xxxxxx -->
+        <!-- 增值服务 -->
         <div>
-          <p class="service-title">xxxxxx</p>
+          <p class="service-title">增值服务</p>
           <ul class="service-ul">
               <li :class="{ uncultivated: item.ifDevlop }" v-for="(item,index) in otherList" :key="index" :data-state="item.state" @click="modularGo(item.address)" :vkshop-event-name="item.name" vkshop-event-type="click"><img :src="item.src" alt=""><span>{{item.name}}</span></li>
           </ul>
@@ -84,34 +84,50 @@ export default {
     }
   },
   created(){
-    if(localStorage.getItem('YF_mainstream_project') && localStorage.getItem('YF_mainstream_project') != ''){
-        this.proname = localStorage.getItem('YF_mainstream_project');
-        this.haveEnterprise = true;
-    }else{
-      this.$axios.get(this.GLOBAL.serverSrc+'/index/defuatProject',{
-        params:{
-          rand:new Date().getTime()
-        }
-      }).then(response=>{
-        console.log(response);
-        if(response.data.data != null){
-          localStorage.setItem('YF_mainstream_project',response.data.data.proname)
-          localStorage.setItem('YF_mainstream_project_code',response.data.data.procode)
-          localStorage.setItem('YF_mainstream_project_isAttention',response.data.data.isattention)
-          this.proname = localStorage.getItem('YF_mainstream_project');
-          this.haveEnterprise = true;
-        }
-      })
-    }
+    this.checkIfProject();
   },
   mounted(){
     this.clearUnderline();
   },
   methods: {
-    increment() {
-      this.$store.commit('increment')
-      console.log(this.$store.state.count)
+    //看是否有项目
+    checkIfProject: function(){
+      let that = this;
+      new Promise(function (resolve, reject) {
+          that.$axios.get(that.GLOBAL.serverSrc+'/index/getProjectList',{
+              params:{
+                  page:1,
+                  size:10,
+                  rand:new Date().getTime()
+              }
+          }).then((response) => {
+             resolve(response.data.data.items.length);
+          })
+      }).then(function (amount){
+          if(amount>0){
+            if(localStorage.getItem('YF_mainstream_project') && localStorage.getItem('YF_mainstream_project') != ''){
+                that.proname = localStorage.getItem('YF_mainstream_project');
+                that.haveEnterprise = true;
+            }else{
+              that.$axios.get(that.GLOBAL.serverSrc+'/index/defuatProject',{
+                params:{
+                  rand:new Date().getTime()
+                }
+              }).then(response=>{
+                console.log(response);
+                if(response.data.data != null){
+                  localStorage.setItem('YF_mainstream_project',response.data.data.proname)
+                  localStorage.setItem('YF_mainstream_project_code',response.data.data.procode)
+                  localStorage.setItem('YF_mainstream_project_isAttention',response.data.data.isattention)
+                  that.proname = localStorage.getItem('YF_mainstream_project');
+                  that.haveEnterprise = true;
+                }
+              })
+            }
+          }
+      })
     },
+
     //除去最后的下划线
     clearUnderline:function(){
       var list = document.getElementsByClassName('service-ul');

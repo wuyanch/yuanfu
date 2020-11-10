@@ -38,6 +38,7 @@ const webpackConfig = merge(baseWebpackConfig, {
           warnings: false
         }
       },
+      // transpileDependencies: ['image-conversion'],
       sourceMap: config.build.productionSourceMap,
       parallel: true
     }),

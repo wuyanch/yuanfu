@@ -116,7 +116,7 @@
                  <button @click="dateCloseBtn"><i class="el-icon-circle-close"></i></button>
              </div>
 
-              <div class="eaxc-loading" v-if="loadingEaxc">
+            <div class="eaxc-loading" v-if="loadingEaxc">
                 <p v-loading="loadingEaxc"
                     element-loading-text="拼命加载中"
                     element-loading-spinner="el-icon-loading"
@@ -148,7 +148,8 @@ export default {
             centerDialogVisible:false,//对话框是否展示
             centerDialogVisibleList:[],//行业
             isNodata: false,//是否真的没有数据
-            loadingEaxc:false//加载中的提示语
+            loadingEaxc:false,//加载中的提示语
+            isKeepAlive:false
         }
     },
     created(){
@@ -197,7 +198,8 @@ export default {
             this.radio = '';
             this.selectContentFlag = false;
             this.quotationListArray = [];
-           
+            this.totalAll = 0;
+
             if(this.selectContent == 1){
                 this.initQuotation();
             }
@@ -219,8 +221,8 @@ export default {
 
             this.$axios.post(this.GLOBAL.serverSrc+'/index/getProMouldPage',{
                     procode: localStorage.getItem('YF_mainstream_project_code'),
-                   createTimeStart: this.selectContent==3 ? '':this.formatDateTime(this.selectTime[0]),
-                    createTimeEnd: this.selectContent==3 ? '':this.formatDateTime(this.selectTime[1]),
+                    createTimeStart: this.selectContent==2 ? '':this.formatDateTime(this.selectTime[0]),
+                    createTimeEnd: this.selectContent==2 ? '':this.formatDateTime(this.selectTime[1]),
                     approveTimeStart: this.selectContent==3 ? this.formatDateTime(this.selectTime[0]):'',
                     approveTimeEnd: this.selectContent==3 ? this.formatDateTime(this.selectTime[1]):'',
                     rand: new Date().getTime()
@@ -245,7 +247,11 @@ export default {
         },
         //单选失去焦点
         radioChange: function(value){
-            this.selectContentFlag = false;
+            this.noDataTip = '正在拼命加载中';
+            this.totalAll = 0;
+            this.quotationListArray = [];
+            this.selectContentFlag = true;
+            // this.selectContentFlag = false;
             this.isNodata = false;
             console.log(value)
             console.log("跑这里单选失去焦点")
@@ -260,6 +266,7 @@ export default {
                         this.quotationListArray = response.data.data.items;
                         this.totalAll = response.data.data.total;
                     }else{
+                        this.totalAll = 0;
                         this.quotationListArray = [];
                         this.selectContentFlag = true;
                         this.noDataTip = "此条件内没有询价，请更换条件"
@@ -495,7 +502,7 @@ export default {
         //进入详情页面
         lookDetail:function(proserialno,status){
             console.log(this)
-            this.$router.push({name:'quotationDetail',params:{id:proserialno,status:status}})
+            this.$router.push({path:'/quotationDetail',query:{id:proserialno,status:status}})
         },
         //回到主页
         goHome: function(){
@@ -507,11 +514,36 @@ export default {
         },
         handleCurrentChange(val) {
             console.log(`当前页: ${val}`);
-             this.$axios.post(this.GLOBAL.serverSrc+'/index/getProMouldPage',{
+            // this.noDataTip = '正在拼命加载中';
+            // this.isNodata = false;
+            // this.quotationListArray = [];
+
+            let data = {};
+            if(this.radio != ''){
+                data={
                     procode: localStorage.getItem('YF_mainstream_project_code'),
+                    createTimeStart: this.selectContent==2  ? this.formatDateTime(this.selectTime[0]):'',
+                    createTimeEnd: this.selectContent==2 ?  this.formatDateTime(this.selectTime[1]):'',
+                    approveTimeStart: this.selectContent==3 ? this.formatDateTime(this.selectTime[0]):'',
+                    approveTimeEnd: this.selectContent==3 ? this.formatDateTime(this.selectTime[1]):'',
                     page: val,
+                    size:10,
+                    status:this.radio,
                     rand: new Date().getTime()
-                }).then(response =>{
+                }
+            }else{
+                data={
+                    procode: localStorage.getItem('YF_mainstream_project_code'),
+                    createTimeStart: this.selectContent==2  ? this.formatDateTime(this.selectTime[0]):'',
+                    createTimeEnd: this.selectContent==2 ?  this.formatDateTime(this.selectTime[1]):'',
+                    approveTimeStart: this.selectContent==3 ? this.formatDateTime(this.selectTime[0]):'',
+                    approveTimeEnd: this.selectContent==3 ? this.formatDateTime(this.selectTime[1]):'',
+                    page: val,
+                    size:10,
+                    rand: new Date().getTime()
+                }
+            }
+             this.$axios.post(this.GLOBAL.serverSrc+'/index/getProMouldPage',data).then(response =>{
                     console.log("我是分页")
                     console.log(response)
                     if(response.data.code == 200){
@@ -519,8 +551,10 @@ export default {
                             this.quotationListArray = response.data.data.items;
                             this.totalAll = response.data.data.total
                         }else{
+                            this.totalAll = 0;
                             this.quotationListArray = [];
-                            this.noDataTip = "此时间段内没有询价，请更换条件"
+                            this.noDataTip = "此时间段内没有询价，请更换条件";
+                            this.isNodata = true;
                         }
                     }
                 }).catch(error =>{
@@ -738,6 +772,7 @@ export default {
 }
 .pagination-m{
     margin-top: 30px;
+    line-height: 40px;
 }
 .el-pagination{
     white-space: normal;

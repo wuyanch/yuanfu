@@ -21,7 +21,7 @@
         </div>
         <!-- 列表 -->
         <div class="enterprise-list-content">
-            <div class="enterprise-scroll" v-if="ifLoading == true">
+            <div class="enterprise-scroll" v-if="initLoading == true">
                 <!-- 全部项目为0 -->
                 <ul v-if="enterpriseList != null">
                     <li v-for="(item,index) in enterpriseList" :key="index" @click.stop="lookProject(item)">
@@ -38,6 +38,9 @@
                 <ul v-else-if="isSelect_flag == false && enterpriseList == null && isSelect == 0">
                     <li class="nodata"><img src="../../assets/img/nodata.png"><p>{{noDataTip}}</p></li>
                 </ul>
+                <ul v-else-if="isSelect_flag == true && enterpriseList == null && isSelect == 1">
+                    <li class="nodata"><img src="../../assets/img/nodata.png"><p>{{noDataTip}}</p></li>
+                </ul>
                 <!-- 分页区 -->
                 <div class="pagination-m">
                     <el-pagination
@@ -51,6 +54,9 @@
                     :hide-on-single-page="true">
                     </el-pagination>
                 </div>
+            </div>
+            <div class="enterprise-scroll" v-else>
+                <li class="nodata"><i class="el-icon-loading"></i><p>正在拼命加载中，请稍等</p></li>
             </div>
         </div>
        
@@ -83,11 +89,12 @@ export default {
             errorContent:'',//报错内容
             allProjectName:[],//模糊搜索的字
             timeout:null,
-            noDataTip:'暂时没有项目，请创建项目'//没有数据时候的提示语
+            noDataTip:'暂时没有项目，请创建项目',//没有数据时候的提示语
+            initLoading:false,//初始化加载
         }
     },
     created(){
-        this.ifLoading = true;
+       
     },
     mounted() {
       this.init();
@@ -125,11 +132,12 @@ export default {
                     }
                 }).then((response) => { // 重要，注意添加了return
                         if(response.data.code == 200){
+                            that.initLoading = true;
                             that.allProjectName.length = 0;
                             console.log(response.data)
                             if(response.data.data != null){
                                 for(var i = 0; i < response.data.data.length; i++){
-                                    that.allProjectName.push({value: response.data.data[i].proname})
+                                    that.allProjectName.push({'value': response.data.data[i].proname})
                                 }
                             }
                         }
@@ -262,8 +270,13 @@ export default {
                             that.allTotal = response.data.data.total;
                             that.isSelect_flag = objc.isSelect_flag;
                         }else{
+                            that.isSelect_flag = objc.isSelect_flag;
+                            that.enterpriseList = null;
+                            that.allTotal = response.data.data.total;
                             if(that.isSelect_flag == false){
                                 that.noDataTip = '目前您还没有关注任何项目哦~，先去关注项目吧'
+                            }else{
+                                that.noDataTip = '没有符合条件的项目'
                             }
                         }
                         
@@ -373,6 +386,7 @@ $creatNewEnterprise:38px;
         transform: translate(-50%);
         font-size: 13px;
         text-align: center;
+        list-style-type: none;
         img{
             object-fit : contain
         }

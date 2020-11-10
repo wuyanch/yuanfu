@@ -3,7 +3,8 @@
         <div class="develop">
             <div class="develop-content">
                 <img :src="src" alt="">
-                <p>身份验证失败，请关闭重新进入</p>
+                <p>身份验证已失效，请返回首页或者关闭重新进入</p>
+                <div class="button-zy"><a href="https://open.weixin.qq.com/connect/oauth2/authorize?appid=wx8016693d70c04bd3&redirect_uri=http%3A%2F%2Fwx1.taikang95522.com%2Fjxgj%2FMainTitle.action?function=YFProject&response_type=code&scope=snsapi_base&state=1#wechat_redirect">回到主页</a></div>
             </div>
         </div>
         
@@ -65,6 +66,21 @@ export default {
             color: #60b3ff;
         }
     }
-
+}
+.button-zy{
+    margin-top: 60px;
+    width: 100%;
+    a{
+        width: 150px;
+        height: 38px;
+        border-radius: 5px;
+        position: relative;
+        overflow: hidden;
+        border: 1px solid #60b3ff;
+        text-decoration: none;
+        color:#60b3ff;
+        padding: 10px 25px;
+        font-size: 14px;
+    }
 }
 </style>

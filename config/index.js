@@ -49,7 +49,6 @@ module.exports = {
     /**
      * Source Maps
      */
-
     //productionSourceMap: true,//去掉编译文件中map文件。在编译好后，我们会看到文件夹下有特别多的.map文件，这些文件主要是帮助我们线上调试代码，查看样式
     productionSourceMap: false,
     // https://webpack.js.org/configuration/devtool/#production
@@ -62,7 +61,7 @@ module.exports = {
     //2020-10-30把gzip打开 productionGzip: false-> productionGzip: true
     productionGzip: true,
     productionGzipExtensions: ['js', 'css'],
-
+   
     // Run the build command with an extra argument to
     // View the bundle analyzer report after build finishes:
     // `npm run build --report`
