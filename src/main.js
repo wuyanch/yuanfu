@@ -1,8 +1,11 @@
 // The Vue build version to load with the `import` command
 // (runtime-only or standalone) has been set in webpack.base.conf with an alias.
+
 import Vue from 'vue'
 import App from './App'
+
 import router from './router'
+
 import ElementUI, { Message, Alert } from 'element-ui';
 import 'element-ui/lib/theme-chalk/index.css';
 import './components/rem.js'
@@ -15,12 +18,19 @@ import qs from 'qs'
 import Log from './util/Log'
 import sa from 'sa-sdk-javascript'
 
+
+//全局变量
+import global_ from './components/global/Global.js'//引用文件
+Vue.prototype.GLOBAL = global_//挂载到Vue实例上面
+
+
 import temporaryClear from './js/temporaryClear';
 Vue.use(temporaryClear);
 
 directives.init(Vue);
 
 // Vue.use(Vuex);
+
 Vue.use(ElementUI);
 
 Vue.config.productionTip = false
@@ -80,17 +90,8 @@ axios.interceptors.response.use(
         // 未登录则跳转登录页面，并携带当前页面的路径
         // 在登录成功后返回当前页面，这一步需要在登录页操作。
         case 401:
-          // test();
-            // if (error.response.statusText == "Unauthorized") {
-            //     console.log("身份过期了")
-            //     router.push({name:'overLogin'})
-            //     break;
-            // } else {
-            //   // router.push({name:'overLogin'})
-            //   console.log('error.response.statusText != Unauthorized')
-            //   break;
-            // }
           router.push({name:'overLogin'})
+          break;
         // 403 token过期
         // 登录过期对用户进行提示
         // 清除本地token和清空vuex中token对象
@@ -102,7 +103,7 @@ axios.interceptors.response.use(
 
         // 404请求不存在
         case 404:
-          // router.push({name:'overLogin'})
+          router.push({name:'error'})
           // vant.Toast.fail("您访问的网页不存在。");
 
           break;
@@ -123,7 +124,7 @@ axios.interceptors.response.use(
 
 const user_id = window.localStorage.getItem("token") // 这个是必须要有唯一的id，可以取用户id
 sa.init({
-  server_url: '/user/logdata', // 替换成自己的地址
+  server_url: global_.serverSrc+'/user/logdata', // 替换成自己的地址/MyBP
   show_log: false, // 打印console，自己配置，可以看到自己是否踩点成功，以及
   heatmap: {
      //是否开启点击图，默认 default 表示开启，自动采集 $WebClick 事件，可以设置 'not_collect' 表示关闭
@@ -137,14 +138,14 @@ sa.init({
 sa.login(user_id);
 // if (window.$config.env == 'prod') { // 这个地方是看自己的需求加判断添加
   // 神策路由监控页面跳转
-  router.afterEach((to,from) => {
+router.afterEach((to,from) => {
     Vue.nextTick(() => {
         document.title = to.meta.title;
         sa.quick("autoTrackSinglePage");
     });
-  })
-  // 点击事件统计
-  Log.init()
+})
+// 点击事件统计
+Log.init()
 // }
 
 

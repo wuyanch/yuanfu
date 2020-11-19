@@ -75,7 +75,7 @@ export default {
         getIndustryList: function(){
             let _that = this;
             new Promise(function(resolve,reject){
-                _that.$axios.get('/index/getIndustryList').then(response => {
+                _that.$axios.get(_that.GLOBAL.serverSrc+'/index/getIndustryList').then(response => {
                     _that.centerDialogVisibleList = response.data.data;
                     console.log(JSON.stringify(_that.centerDialogVisibleList))
                     resolve(response.data.code)
@@ -86,7 +86,7 @@ export default {
                 })
             }).then(function(industryCode){
                 if(industryCode == 200){
-                    _that.$axios.get('/index/getProDetail',{
+                    _that.$axios.get(_that.GLOBAL.serverSrc+'/index/getProDetail',{
                         params:{
                             procode : localStorage.getItem('YF_mainstream_project_code'),
                             rand: new Date().getTime()
@@ -129,7 +129,7 @@ export default {
         toSaveOrUpdateProDetail: function(){//procode--项目编码  industrycode--行业编码 unitnum --单位人数  remark--描述
             let params = {procode:localStorage.getItem('YF_mainstream_project_code'),industrycode:this.selectIndustryCode,unitnum:this.totalNum,remark:this.textareaRecode,rand:new Date().getTime()}
             
-            this.$axios.post('/index/saveOrUpdateProDetail',this.$qs.stringify(params)).then(response => {
+            this.$axios.post(this.GLOBAL.serverSrc+'/index/saveOrUpdateProDetail',this.$qs.stringify(params)).then(response => {
                 let quotationInformation = {totalNum:this.totalNum,industry:this.selectIndustry,selectIndustryCode:this.selectIndustryCode,textareaRecode:this.textareaRecode};
                 localStorage.setItem("quotationInformation_0",JSON.stringify(quotationInformation));
                 console.log(response);

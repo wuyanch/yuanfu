@@ -36,7 +36,7 @@
                                             <span>{{inform.type}} <span v-if="inform.remarks != ''">: {{inform.remarks}}</span></span><br/>
                                         </p>
                                     </div>
-                                    <div v-if="InquiryResult[0].loseefficacytime != undefined" class="baojia">
+                                    <div v-if="InquiryResult[0].loseefficacytime != undefined && InquiryResult[0].loseefficacytime != null && InquiryResult[0].loseefficacytime != 'null'" class="baojia">
                                         <p class="part-pre-title">项目报价</p>
                                         <p class="confidential confidential-tip">注意：申请方案可能与批复方案不同，批复方案详见下表。</p>
                                         <ul class="part-suans">
@@ -53,9 +53,9 @@
                                             </li>
                                             <li class="part-li-last"><span>总计</span><span class="part-mony-all"> {{hbAllPlanFee | addDouHao}}<i> 元</i></span></li>
                                         </ul>
-                                        <p>报价有效期：截止 {{InquiryResult[0].loseefficacytime.replace(/T/,' ').slice(0,16)}}</p>
+                                        <p>报价有效期：截止 {{InquiryResult[0].loseefficacytime instanceof Array?InquiryResult[0].loseefficacytime[0]+'-'+(InquiryResult[0].loseefficacytime[1]>9?InquiryResult[0].loseefficacytime[1]:'0'+InquiryResult[0].loseefficacytime[1])+'-'+InquiryResult[0].loseefficacytime[2]:InquiryResult[0].loseefficacytime.replace(/T/,' ').slice(0,16)}}</p>
                                     </div>
-                                    <p class="underwriting-infor">核保人员/时间：{{InquiryResult[0].username}}/{{InquiryResult[0].createtime.replace(/T/,' ').slice(0,16)}}</p>
+                                    <p class="underwriting-infor">核保人员/时间：{{InquiryResult[0].username}}/{{InquiryResult[0].createtime instanceof Array?InquiryResult[0].createtime[0]+'-'+(InquiryResult[0].createtime[1]>9?InquiryResult[0].createtime[1]:'0'+InquiryResult[0].createtime[1])+'-'+InquiryResult[0].createtime[2]+' '+InquiryResult[0].createtime[3]+':'+InquiryResult[0].createtime[4]+':'+InquiryResult[0].createtime[5]:InquiryResult[0].createtime.replace(/T/,' ').slice(0,16)}}</p>
                                 </div>
                                 <p class="confidential">内部签报，注意保密。请勿转发！</p>
                             </div>
@@ -155,7 +155,7 @@
                                                                     <span class="mony-before">{{item41.insureamount | numFilterBefore}}</span>.<span class="mony-after">{{item41.insureamount | numFilterAfter}}</span>
                                                                     </span> {{item41.amountunit}}</span>
                                                                 <div  v-if="item41.confList != null">
-                                                                    <p class="kind-explain-1 desc" v-for="(item41_sub,index41_sub) in item41.confList" :key="index41_sub">
+                                                                    <p class="kind-explain-1 desc kind-explain-nochild" v-for="(item41_sub,index41_sub) in item41.confList" :key="index41_sub">
                                                                         <span>{{item41_sub.levelname}}:</span>
                                                                         <span>
                                                                             {{item41_sub.levelvalue}}
@@ -228,7 +228,7 @@
                                                                 <span class="hb-money"  v-if="item41.hbamount != null"><i class="hb-money-f">￥</i><span class="mony"><span class="mony-before">{{item41.hbamount | numFilterBefore}}</span>.<span class="mony-after">{{item41.hbamount | numFilterAfter}}</span></span></span>
                                                             
                                                                 <div  v-if="item41.confList != null">
-                                                                    <p class="kind-explain-1 desc" v-for="(item41_sub,index41_sub) in item41.confList" :key="index41_sub">
+                                                                    <p class="kind-explain-1 desc kind-explain-nochild" v-for="(item41_sub,index41_sub) in item41.confList" :key="index41_sub">
                                                                         <span>{{item41_sub.levelname}}:</span>
                                                                         <span v-if="item41_sub.hbvalue != null"><i class="after-hbchange">{{item41_sub.hbvalue}}</i>
                                                                             <el-tooltip placement="top" class="item" effect="dark" v-if="item41_sub.hbvalue != item41_sub.levelvalue">
@@ -281,7 +281,7 @@
                                                                 <div class="kind-explain-1 kind-explain-2 desc" v-if="item42.confList != null">
                                                                     <p  v-for="(item42_sub,index42_sub) in item42.confList" :key="index42_sub">
                                                                     <span>{{item42_sub.levelname}}:</span>
-                                                                        <span v-if="item42_sub.hbvalue != null"><i class="after-hbchange">{{item42_sub.hbvalue}}</i>
+                                                                        <span v-if="item42_sub.hbvalue != null"><i class="after-hbchange" v-if="item42_sub.hbvalue < 0">按照社保标准</i><i v-else class="after-hbchange">{{item42_sub.hbvalue}}</i>
                                                                             <el-tooltip placement="top" class="item" effect="dark" v-if="item42_sub.hbvalue != item42_sub.levelvalue">
                                                                                 <div slot="content">申请设置条件为：{{item42_sub.levelvalue}}</div>
                                                                                 <el-button class="hbchange"><i class="el-icon-warning-outline"></i>该数值核保有改动</el-button>
@@ -355,8 +355,8 @@ export default {
         }
     },
     created(){
-        this.currentId = this.$route.params.id;
-        this.currentStatus = this.$route.params.status;
+        this.currentId = this.$route.query.id;
+        this.currentStatus = this.$route.query.status;
         this.enterpriseCurName = localStorage.getItem('YF_mainstream_project');
         this.getAllContent();
         console.log(this.currentId, this.currentStatus)
@@ -373,7 +373,7 @@ export default {
         },
          // 取图片列表--得到图片
         getListPhoto: function(){
-            this.$axios.get('/index/list/image',{
+            this.$axios.get(this.GLOBAL.serverSrc+'/index/list/image',{
                     params:{
                         proserialno: this.currentId,
                         rand:new Date().getTime()
@@ -386,7 +386,7 @@ export default {
                     console.log('333');
                     this.isPicList = true;
                     if(res.data.code=="200"){
-                        if( res.data.data.length != 0){
+                        if( res.data.data != null){
                              res.data.data.forEach(function(current,index){
                             // that.$set(current,"status",'success');//改变状态位
                                 current.status = 'success';
@@ -419,7 +419,7 @@ export default {
         //获取需要展示的 核保意见
         getInquiryResult: function(){
             let that = this;
-            this.$axios.get('/index/getInquiryResult',{
+            this.$axios.get(this.GLOBAL.serverSrc+'/index/getInquiryResult',{
                 params:{
                     proserialno: this.currentId,
                     random: new Date().getTime()
@@ -439,7 +439,7 @@ export default {
         //获取需要展示的 单位信息内容
         getUnitInformation: function(){
             let that = this;
-            this.$axios.get('/index/getInquiryUnitInformation',{
+            this.$axios.get(this.GLOBAL.serverSrc+'/index/getInquiryUnitInformation',{
                 params:{
                     proserialno: this.currentId,
                     random: new Date().getTime()
@@ -458,8 +458,8 @@ export default {
         },
         //获取需要展示的 业务信息内容
         getBusinessInformation: function(){
-            let that = this;
-            this.$axios.get('/index/getInquiryBusinessInformation',{
+            let that = this;//this.GLOBAL.serverSrc+'/XXX/XXX'
+            this.$axios.get(this.GLOBAL.serverSrc+'/index/getInquiryBusinessInformation',{
                 params:{
                     proserialno: this.currentId,
                     random: new Date().getTime()
@@ -480,7 +480,7 @@ export default {
         //获取需要展示的 计划信息内容
         getInquiryPlan: function(){
             let that = this;
-            this.$axios.get('/index/getInquiryPlan',{
+            this.$axios.get(this.GLOBAL.serverSrc+'/index/getInquiryPlan',{
                 params:{
                     proserialno: this.currentId,
                     random: new Date().getTime()
@@ -555,6 +555,9 @@ export default {
 </script>
 
 <style lang="scss" scoped>
+::-webkit-scrollbar {
+    width: 0px;
+}
 .quotation-detail{
     margin-top: 50px;
     padding: 0px 10px 5px 10px; 
@@ -808,8 +811,8 @@ export default {
         ul {
             list-style-type: none;
             li{
-                width: 74px;
-                height: 74px;
+                min-width: 74px;
+                min-height: 74px;
                 display: inline-block;
                 img{
                     width: 100%;
@@ -826,7 +829,7 @@ export default {
                 &:first-child{
                     text-align: justify;
                     display: inline-block;
-                    width: 70px;
+                    width: 78px;
                     vertical-align: top;
                 }
                 &:first-child::after {
@@ -840,7 +843,7 @@ export default {
                     vertical-align: top;
                 }
                 &:last-child{
-                    width: calc(100% - 90px);
+                    width: calc(100% - 98px);
                     display: inline-block;
                 }
             }
@@ -925,7 +928,7 @@ export default {
     ul{
         list-style-type: none;
         li{
-            margin-top: 5px;
+            margin-top: 10px;
             div{
                 margin-top: 5px;
                 position: relative;
@@ -935,7 +938,11 @@ export default {
                         padding: 3px 0;
                     }
                 }
+                div.kind-explain-nochild{
+                    margin-top: 5px;
+                }
             }
+            
             p{
                 span{
                     display: inline-block;
@@ -948,13 +955,22 @@ export default {
             .kind-explain-1{
                 width: 7rem;
                 padding-left: 1em;
-                margin-top: .15rem;
+                // margin-top: .15rem;
                 span{
                     text-indent: 0;
                 }
             }
+           
             .kind-explain-2{
                 margin-left: 2em;
+                // padding-left: 2em;
+            }
+            .kind-explain-1>p{
+                line-height: 10px;
+                margin-top: 5px;
+            }
+            div.kind-explain-nochild{
+                margin-top: 5px;
             }
             .after-hbchange{
                 // color: red;
@@ -967,6 +983,7 @@ export default {
                 padding: 5px 5px 5px 2px;
                 color: #62b4ff;
                 text-decoration: #62b4ff;
+                background: inherit;
             }
             .hb-money{
                 color: #eb2020;

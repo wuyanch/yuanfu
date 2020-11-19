@@ -10,26 +10,11 @@
 import wx from 'weixin-js-sdk'
 export default {
   name: 'App',
-  created(){
-    wx.ready(() => {
-        console.log('wx.ready');
-        wx.hideOptionMenu();
-    });
+  data(){
+    return{ }
   },
-  beforeCreate(){
-     console.log("我是初始化")
-     let exp = new Date();
-        exp.setTime(exp.getTime() - 1);
-      let strcookie = document.cookie;//获取cookie字符串
-      let arrcookie = strcookie.split("; ");//分割
-      //遍历匹配
-      for ( let i = 0; i < arrcookie.length; i++) {
-          let arr = arrcookie[i].split("=");
-          if (arr[0] == 'token' && arr[1] != ''){
-            localStorage.setItem('token',arr[1]);
-            document.cookie = arr[0] + "=" + arr[1] + ";expires="+ exp.toUTCString();
-          }
-      }
+  created(){
+    wx.hideOptionMenu();
   }
 }
 </script>

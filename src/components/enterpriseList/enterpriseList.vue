@@ -21,11 +21,11 @@
         </div>
         <!-- 列表 -->
         <div class="enterprise-list-content">
-            <div class="enterprise-scroll" v-if="ifLoading == true">
+            <div class="enterprise-scroll" v-if="initLoading == true">
                 <!-- 全部项目为0 -->
                 <ul v-if="enterpriseList != null">
                     <li v-for="(item,index) in enterpriseList" :key="index" @click.stop="lookProject(item)">
-                        <div>
+                        <div :vkshop-event-name="item.proname" vkshop-event-type="click">
                             <p class="enterprise-name">{{item.proname}}</p><p class="enterprise-time">项目创建时间：{{item.createtime}}</p>
                             <p class="enterprise-follow-btn"><button v-if="item.isattention == '1'" class="follow" @click.stop="followClick(item.procode,index)">已关注</button><button class="no-follow" @click.stop="followClick(item.procode,index)" v-else>添加到关注</button></p>
                             <i class="el-icon-arrow-right"></i>
@@ -36,6 +36,9 @@
                     <li class="nodata">等待输入项目名称中...</li>
                 </ul>
                 <ul v-else-if="isSelect_flag == false && enterpriseList == null && isSelect == 0">
+                    <li class="nodata"><img src="../../assets/img/nodata.png"><p>{{noDataTip}}</p></li>
+                </ul>
+                <ul v-else-if="isSelect_flag == true && enterpriseList == null && isSelect == 1">
                     <li class="nodata"><img src="../../assets/img/nodata.png"><p>{{noDataTip}}</p></li>
                 </ul>
                 <!-- 分页区 -->
@@ -51,6 +54,9 @@
                     :hide-on-single-page="true">
                     </el-pagination>
                 </div>
+            </div>
+            <div class="enterprise-scroll" v-else>
+                <li class="nodata"><i class="el-icon-loading"></i><p>正在拼命加载中，请稍等</p></li>
             </div>
         </div>
        
@@ -83,11 +89,12 @@ export default {
             errorContent:'',//报错内容
             allProjectName:[],//模糊搜索的字
             timeout:null,
-            noDataTip:'暂时没有项目，请创建项目'//没有数据时候的提示语
+            noDataTip:'暂时没有项目，请创建项目',//没有数据时候的提示语
+            initLoading:false,//初始化加载
         }
     },
     created(){
-        this.ifLoading = true;
+       
     },
     mounted() {
       this.init();
@@ -97,7 +104,7 @@ export default {
         init: function(){
             let that = this;
             new Promise(function (resolve, reject) {
-                that.$axios.get('/index/getProjectList',{
+                that.$axios.get(that.GLOBAL.serverSrc+'/index/getProjectList',{
                     params:{
                         page:1,
                         size:10,
@@ -119,17 +126,18 @@ export default {
                 })
             }).then(function (amount){
                  console.log("getAllByUserInfo")
-                return that.$axios.get('/index/getAllByUserInfo',{
+                return that.$axios.get(that.GLOBAL.serverSrc+'/index/getAllByUserInfo',{
                     params:{
                         rand:new Date().getTime()
                     }
                 }).then((response) => { // 重要，注意添加了return
                         if(response.data.code == 200){
+                            that.initLoading = true;
                             that.allProjectName.length = 0;
                             console.log(response.data)
                             if(response.data.data != null){
                                 for(var i = 0; i < response.data.data.length; i++){
-                                    that.allProjectName.push({value: response.data.data[i].proname})
+                                    that.allProjectName.push({'value': response.data.data[i].proname})
                                 }
                             }
                         }
@@ -176,7 +184,7 @@ export default {
         followClick:function(procode,index){
             let newAttention = this.enterpriseList[index].isattention == "1"? "0":"1";
             let params = {isAttention:newAttention, procode:procode,rand:new Date().getTime()}
-            this.$axios.post('/index/isAttention',this.$qs.stringify(params))
+            this.$axios.post(this.GLOBAL.serverSrc+'/index/isAttention',this.$qs.stringify(params))
             .then(response => {
                 this.$set(this.enterpriseList[index],"isattention",this.enterpriseList[index].isattention == "1"? "0":"1");//改变状态位
             }).catch(error => {
@@ -245,7 +253,7 @@ export default {
                 isattention:(obj.isattention==undefined||obj.isattention==null)?'':obj.isattention,
                 isSelect_flag:(obj.isSelect_flag==undefined||obj.isSelect_flag==null)?false:obj.isSelect_flag
             }
-            this.$axios.get('/index/getProjectList',{
+            this.$axios.get(this.GLOBAL.serverSrc+'/index/getProjectList',{
                     params:{
                         page:objc.page,
                         size:10,
@@ -262,8 +270,13 @@ export default {
                             that.allTotal = response.data.data.total;
                             that.isSelect_flag = objc.isSelect_flag;
                         }else{
+                            that.isSelect_flag = objc.isSelect_flag;
+                            that.enterpriseList = null;
+                            that.allTotal = response.data.data.total;
                             if(that.isSelect_flag == false){
                                 that.noDataTip = '目前您还没有关注任何项目哦~，先去关注项目吧'
+                            }else{
+                                that.noDataTip = '没有符合条件的项目'
                             }
                         }
                         
@@ -373,6 +386,7 @@ $creatNewEnterprise:38px;
         transform: translate(-50%);
         font-size: 13px;
         text-align: center;
+        list-style-type: none;
         img{
             object-fit : contain
         }

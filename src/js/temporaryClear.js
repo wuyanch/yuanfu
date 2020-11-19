@@ -30,7 +30,7 @@ exports.install = function(Vue, options) {
         }
         console.log('暂存开始')
         console.log(arr);
-        return this.$axios.post('/index/saveInquiry',{
+        return this.$axios.post(this.GLOBAL.serverSrc+'/index/saveInquiry',{
             plan:arr.plan,
             resp:arr.resp,
             conf:arr.conf,

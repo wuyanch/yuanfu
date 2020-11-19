@@ -200,6 +200,7 @@ export default {
             insuranceDialogData:{},
             configurationResponsibility:{domains:[]},//所有计划的所有内容
             planNameT:[],//计划名称
+            plancodeT:[],//计划名称编码
             replicatedGroup:[],//复制的计划的选择组
             dynamicValidateFormOpen:[],//展开收起
             responsibilityList:{allresponsibilityData:[]},//添加责任因计划改变的数据
@@ -563,7 +564,7 @@ export default {
         },
         //查看险种简单条款
         lookResponsibility: function(code){
-             this.$axios.get('/index/getRiskDetail',{
+             this.$axios.get(this.GLOBAL.serverSrc+'/index/getRiskDetail',{
                 params:{
                     riskno: code
                 }
@@ -672,7 +673,7 @@ export default {
         getRiskRespByMouldcode: function(){
             let that = this;
             console.log("hello,第二步开始")
-            this.$axios.get('/index/getRiskRespByMouldcode',{
+            this.$axios.get(this.GLOBAL.serverSrc+'/index/getRiskRespByMouldcode',{
                 params:{
                     mouldcode:JSON.parse(localStorage.getItem('YF_quotationInformation_1')).templateSelection,
                     rand:new Date().getTime()
@@ -685,8 +686,10 @@ export default {
                         let information_2 = JSON.parse(localStorage.getItem('quotationInformation_2'));
                         //对比第一步的顺序与暂存里的顺序对不对的上
                         for(let i = 0; i < information_2.distributionPlan.length; i++){
-                            //压入名字
+                            //压入名字plancode plancodeT
+                            // that.planNameT.push(information_2.distributionPlan[i].activeName)
                             that.planNameT.push(information_2.distributionPlan[i].activeName)
+                            that.plancodeT.push(information_2.distributionPlan[i].planCode)
                         }
                         //获取上次暂存的第二步的内容
                         let information_3_ = JSON.parse(localStorage.getItem('quotationInformation_3'));
@@ -696,7 +699,7 @@ export default {
                             let isPushflag = false;//不等于false， 等于true
                             let recodeK ;
                             for(let k = j; k < resetInformation.length;k++){
-                                if(that.planNameT[j] == resetInformation[k].planName){
+                                if(that.plancodeT[j] == resetInformation[k].planCode){//that.planNameT[j] == resetInformation[k].planName
                                     isPushflag = true;
                                     recodeK = k;
                                 }
@@ -705,6 +708,7 @@ export default {
                                 if(information_3_.configurationResponsibility[recodeK].data != null){
                                     let param = {
                                         planName: that.planNameT[j],//计划名称
+                                        planCode: that.plancodeT[j],//计划名称编码
                                         data:information_3_.configurationResponsibility[recodeK].data
                                     }
                                     tempC.push(param);
@@ -712,6 +716,7 @@ export default {
                                     let tep = JSON.parse(JSON.stringify(that.mocData))
                                     let param = {
                                         planName: that.planNameT[j],//计划名称
+                                        planCode: that.plancodeT[j],//计划名称编码
                                         data:tep
                                     }
                                     tempC.push(param);
@@ -720,6 +725,7 @@ export default {
                                 let tep = JSON.parse(JSON.stringify(that.mocData))
                                 let param = {
                                     planName: that.planNameT[j],//计划名称
+                                    planCode: that.plancodeT[j],//计划名称编码
                                     data:tep
                                 }
                                 tempC.push(param);
@@ -736,12 +742,14 @@ export default {
                                 let information = JSON.parse(localStorage.getItem('quotationInformation_2'));
                                 for(let j = 0; j < information.distributionPlan.length;j++){
                                     that.planNameT.push(information.distributionPlan[j].activeName)
+                                    that.plancodeT.push(information.distributionPlan[j].planCode)
                                 }
                         }
                         for(let i = 0; i < that.planNameT.length; i++){
                             let tep = JSON.parse(JSON.stringify(that.mocData))
                             that.configurationResponsibility.domains.push({
                                 planName: that.planNameT[i],//计划名称
+                                planCode: that.plancodeT[i],//计划名称编码
                                 data:tep
                             })
                         }
@@ -771,7 +779,7 @@ export default {
         //获取所有的能添加的数据 /index/getRiskData
         getRiskData: function(){
             let that = this;
-            this.$axios.get('/index/getRiskData',{
+            this.$axios.get(this.GLOBAL.serverSrc+'/index/getRiskData',{
                 params:{
                     mouldcode:JSON.parse(localStorage.getItem('YF_quotationInformation_1')).templateCode,
                     rand:new Date().getTime()
@@ -802,6 +810,9 @@ export default {
 </script>
 
 <style lang="scss" scoped>
+::-webkit-scrollbar {
+    width: 0px;
+}
 .procedure-two{
     margin-top: 50px;
     margin-bottom: 40px;
@@ -1280,6 +1291,9 @@ export default {
         }
         
     }
-
+    .el-input-number--small,.el-input--small .el-input__inner{
+        height: 32px;
+        line-height: 32px;
+    }
 }
 </style>

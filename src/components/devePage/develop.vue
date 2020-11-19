@@ -7,7 +7,7 @@
                 <p>正在建设中，敬请期待……</p>
             </div>
             <div class="button-btn">
-                <button @click="goHome">返回首页</button>
+                <button @click="goHome">回到主页</button>
             </div>
         </div>
         
