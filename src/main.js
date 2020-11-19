@@ -90,17 +90,8 @@ axios.interceptors.response.use(
         // 未登录则跳转登录页面，并携带当前页面的路径
         // 在登录成功后返回当前页面，这一步需要在登录页操作。
         case 401:
-          // test();
-            // if (error.response.statusText == "Unauthorized") {
-            //     console.log("身份过期了")
-            //     router.push({name:'overLogin'})
-            //     break;
-            // } else {
-            //   // router.push({name:'overLogin'})
-            //   console.log('error.response.statusText != Unauthorized')
-            //   break;
-            // }
           router.push({name:'overLogin'})
+          break;
         // 403 token过期
         // 登录过期对用户进行提示
         // 清除本地token和清空vuex中token对象

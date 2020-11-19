@@ -14,10 +14,7 @@ export default {
     return{ }
   },
   created(){
-    wx.ready(() => {
-        console.log('wx.ready');
-        wx.hideOptionMenu();
-    });
+    wx.hideOptionMenu();
   }
 }
 </script>

@@ -36,7 +36,7 @@
                                             <span>{{inform.type}} <span v-if="inform.remarks != ''">: {{inform.remarks}}</span></span><br/>
                                         </p>
                                     </div>
-                                    <div v-if="InquiryResult[0].loseefficacytime != undefined" class="baojia">
+                                    <div v-if="InquiryResult[0].loseefficacytime != undefined && InquiryResult[0].loseefficacytime != null && InquiryResult[0].loseefficacytime != 'null'" class="baojia">
                                         <p class="part-pre-title">项目报价</p>
                                         <p class="confidential confidential-tip">注意：申请方案可能与批复方案不同，批复方案详见下表。</p>
                                         <ul class="part-suans">
@@ -53,9 +53,9 @@
                                             </li>
                                             <li class="part-li-last"><span>总计</span><span class="part-mony-all"> {{hbAllPlanFee | addDouHao}}<i> 元</i></span></li>
                                         </ul>
-                                        <p>报价有效期：截止 {{InquiryResult[0].loseefficacytime.replace(/T/,' ').slice(0,16)}}</p>
+                                        <p>报价有效期：截止 {{InquiryResult[0].loseefficacytime instanceof Array?InquiryResult[0].loseefficacytime[0]+'-'+(InquiryResult[0].loseefficacytime[1]>9?InquiryResult[0].loseefficacytime[1]:'0'+InquiryResult[0].loseefficacytime[1])+'-'+InquiryResult[0].loseefficacytime[2]:InquiryResult[0].loseefficacytime.replace(/T/,' ').slice(0,16)}}</p>
                                     </div>
-                                    <p class="underwriting-infor">核保人员/时间：{{InquiryResult[0].username}}/{{InquiryResult[0].createtime.replace(/T/,' ').slice(0,16)}}</p>
+                                    <p class="underwriting-infor">核保人员/时间：{{InquiryResult[0].username}}/{{InquiryResult[0].createtime instanceof Array?InquiryResult[0].createtime[0]+'-'+(InquiryResult[0].createtime[1]>9?InquiryResult[0].createtime[1]:'0'+InquiryResult[0].createtime[1])+'-'+InquiryResult[0].createtime[2]+' '+InquiryResult[0].createtime[3]+':'+InquiryResult[0].createtime[4]+':'+InquiryResult[0].createtime[5]:InquiryResult[0].createtime.replace(/T/,' ').slice(0,16)}}</p>
                                 </div>
                                 <p class="confidential">内部签报，注意保密。请勿转发！</p>
                             </div>
@@ -555,6 +555,9 @@ export default {
 </script>
 
 <style lang="scss" scoped>
+::-webkit-scrollbar {
+    width: 0px;
+}
 .quotation-detail{
     margin-top: 50px;
     padding: 0px 10px 5px 10px; 

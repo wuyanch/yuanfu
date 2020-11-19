@@ -444,6 +444,9 @@ export default {
 </script>
 
 <style lang="scss" scoped>
+::-webkit-scrollbar {
+    width: 0px;
+}
 .procedure-preview{
     margin-top: 50px;
 }

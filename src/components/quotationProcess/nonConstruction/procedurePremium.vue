@@ -330,6 +330,16 @@ export default {
             // this.fileData = new FormData();  // new formData对象
             // this.$refs.upload.submit();  // 提交调用uploadFile函数
             // console.log(this.fileData.getAll("files"))
+            if(that.fileList.length != 0){
+                if(that.loading == false){
+                    that.loadingPic = that.$loading({
+                        lock: true,
+                        text: '正在拼命制作预览页，请勿操作',
+                        spinner: 'el-icon-loading',
+                        background: 'rgba(0, 0, 0, 0.7)'
+                    });
+                }
+            }
             Promise.all([
                this.compressPhoto()
             ]).then(resp=>{
@@ -341,39 +351,45 @@ export default {
                     },{timeout: 1000*60*10}).then(res =>{
                         //  成功
                         console.log(res);
-                        console.log('8888');
                         console.log("我是this.fileList")
                         console.log(that.fileList)
                         // 如何成功上传，则200
                         if(res.data.code == 200){
-                                that.fileList.forEach(function(current,index){
-                                    that.$set(current,"status",'success');//改变状态位
-                                })
-                                console.log("我是this.fileList2")
-                                console.log(that.fileList)
+                            that.fileList.forEach(function(current,index){
+                                that.$set(current,"status",'success');//改变状态位
+                            })
+                            // that.loadingPic.close();
                         }else{
                         // 如果上传不成功
                             that.$alert('图片上传失败，请检查你的网络，刷新重新上传','',{
                                 confirmButtonText:'好的'
-                            }).then(()=>{})
+                            }).then(()=>{
+                                // that.loadingPic.close();
+                                // that.loadingPic==null?null:that.loadingPic.close();
+                            })
                         }
+                        that.loadingPic==null?null:that.loadingPic.close();
                         fun(res.data.code);
                     }).catch(error => {
                         console.log("上传图片的报错error")
                         console.log(error)
+                        that.loadingPic==null?null:that.loadingPic.close();
                         that.$alert('抱歉，程序开小差了o(╥﹏╥)o，请稍后再试，或者联系IT人员','',{
                             confirmButtonText:'好的，我知道了'
                         }).then(()=>{
-                            if(that.loading == false){
-                                that.loadingPic.close();
-                            }
-                            that.loading = false;
+                            // if(that.loading == false){
+                            //     that.loadingPic.close();
+                            // }
+                            // that.loading = false;
+                            // that.loadingPic==null?null:that.loadingPic.close();
                         }).catch(()=>{
-                        if(that.loading == false){
-                                that.loadingPic.close();
-                            }
-                            that.loading = false;
+                            // if(that.loading == false){
+                            //     that.loadingPic.close();
+                            // }
+                            // that.loading = false;
+                            // that.loadingPic==null?null:that.loadingPic.close();
                         })
+                        fun("500");
                     })
                 }else{
                     fun("100");
@@ -393,15 +409,7 @@ export default {
                 console.log(this.fileList);
                 let flag = true;
                 if(_that.fileList.length != 0){
-                    if(_that.loading == false){
-                        _that.loadingPic = _that.$loading({
-                            lock: true,
-                            // text: '图片上传中，请勿操作',
-                            text: '正在拼命制作预览页，请勿操作',
-                            spinner: 'el-icon-loading',
-                            background: 'rgba(0, 0, 0, 0.7)'
-                        });
-                    }
+                    let currentList = [];
                     _that.fileList.forEach(function(current,index){
                         if(current.status == 'ready'){
                             let isLt2M = current.size / 1024 / 1024 < 2 // 判定图片大小是否小于2MB
@@ -415,22 +423,29 @@ export default {
                                     flag = true;
                                     let myFile = new window.File([res], current.name,{type: current.raw.type})
                                     _that.fileData.append('files', myFile);
-                                    if(index ==  _that.fileList.length-1 && flag){
+                                    currentList.push(1);
+                                    console.log(index)
+                                    // if(index ==  _that.fileList.length-1 && flag){
+                                    if(currentList.length ==  _that.fileList.length && flag){
                                         console.log(_that.fileData.getAll('files'))
                                         return resolve();
                                     }
                                 })
                             
                             }else{
+                                currentList.push(1);
                                 _that.fileData.append('files', current.raw);
-                                if(index ==  _that.fileList.length-1 && flag){
+                                // if(index ==  _that.fileList.length-1 && flag){
+                                if(currentList.length ==  _that.fileList.length && flag){
                                     console.log(_that.fileData.getAll('files'))
                                     return resolve();
                                 }
                             }
                             
                         }else{
-                            if(index ==  _that.fileList.length-1 && flag){
+                            currentList.push(1);
+                            // if(index ==  _that.fileList.length-1 && flag){
+                            if(currentList.length ==  _that.fileList.length && flag){
                                 console.log(_that.fileData.getAll('files'))
                                 return resolve();
                             }
@@ -531,24 +546,15 @@ export default {
             if(that.DataArrangement()){
                 this.uploadFile(function(response){
                     if(response == 200 || response == 100){
-                        if(response == 200){
-                            that.loadingPic.close();
-                            // that.$message({
-                            //         message: '图片上传成功',
-                            //         type: 'success'
-                            //     });
-                            // that.DataArrangement();
-                        }else if(response == 100){
-                            // that.DataArrangement();
-                        }
+                        that.loadingPic==null?null:that.loadingPic.close();
                         that.$router.push({path:'procedurePreview'})
                     }else if(response != 200 && response != 100){
-                        that.loadingPic.close();
+                        // that.loadingPic.close();
+                        that.loadingPic==null?null:that.loadingPic.close();
                         that.$alert('图片上传失败，请重新上传','',{
                             confirmButtonText:'好的，我知道了'
-                        })
+                        }).catch(()=>{})
                     }
-                    
                 });
             }else{
                 this.$alert('请完成“业务信息”相关必填内容','',{
@@ -563,13 +569,9 @@ export default {
             let that = this;
             that.loading = true;
             this.uploadFile(function(response){
+                that.loadingPic==null?null:that.loadingPic.close();
                 if(response == 200 || response == 100){
                     if(response == 200){
-                        // that.loadingPic.close();
-                        // that.$message({
-                        //         message: '图片上传成功',
-                        //         type: 'success'
-                        //     });
                         localStorage.setItem('quotationInformation_tempsavestep',4);
                         that.$temporary().then((code)=>{
                             that.loading = false;
@@ -855,6 +857,9 @@ export default {
 </script>
 
 <style lang="scss" scoped>
+::-webkit-scrollbar {
+    width: 0px;
+}
 .procedure-premium{
     margin-top: 50px;
     margin-bottom: 40px;

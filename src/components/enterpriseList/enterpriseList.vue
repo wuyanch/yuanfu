@@ -25,7 +25,7 @@
                 <!-- 全部项目为0 -->
                 <ul v-if="enterpriseList != null">
                     <li v-for="(item,index) in enterpriseList" :key="index" @click.stop="lookProject(item)">
-                        <div>
+                        <div :vkshop-event-name="item.proname" vkshop-event-type="click">
                             <p class="enterprise-name">{{item.proname}}</p><p class="enterprise-time">项目创建时间：{{item.createtime}}</p>
                             <p class="enterprise-follow-btn"><button v-if="item.isattention == '1'" class="follow" @click.stop="followClick(item.procode,index)">已关注</button><button class="no-follow" @click.stop="followClick(item.procode,index)" v-else>添加到关注</button></p>
                             <i class="el-icon-arrow-right"></i>

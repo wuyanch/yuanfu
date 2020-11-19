@@ -412,6 +412,9 @@ export default {
 </script>
 
 <style lang="scss" scoped>
+::-webkit-scrollbar {
+    width: 0px;
+}
 .procedure-one{
     margin-top: 50px;
     margin-bottom: 50px;
