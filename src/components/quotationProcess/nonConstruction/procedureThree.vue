@@ -651,7 +651,7 @@ export default {
         //获取最初的值全职--/index/getRespConfByRiskCode获取要设置的条件
         getRespConByRiskCode: function(){
             let _that = this;
-            this.$axios.get(this.GLOBAL.serverSrc+'/index/getRespConfByRiskCode').then(response => {
+            this.$axios.get('/index/getRespConfByRiskCode').then(response => {
                 console.log(response)
                 console.log(JSON.parse(JSON.stringify(response.data)));
                 let tempData = response.data.data;

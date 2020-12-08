@@ -19,9 +19,9 @@ import Log from './util/Log'
 import sa from 'sa-sdk-javascript'
 
 
-//全局变量
-import global_ from './components/global/Global.js'//引用文件
-Vue.prototype.GLOBAL = global_//挂载到Vue实例上面
+//全局变量2020-11-26去掉global全局变量，改为baseURL
+// import global_ from './components/global/Global.js'//引用文件
+// Vue.prototype.GLOBAL = global_//挂载到Vue实例上面
 
 
 import temporaryClear from './js/temporaryClear';
@@ -45,7 +45,7 @@ Vue.prototype.$axios = axios;
 
 
 
-
+axios.defaults.baseURL = process.env.NODE_ENV==='production'?'http://gdbbc.pension.taikang.com/mybp/work':'' //服务器地址
 axios.defaults.crossDomain = true;
 axios.defaults.withCredentials = true;  //设置cross跨域 并设置访问权限 允许跨域携带cookie信息
 axios.defaults.headers.common['Authorization'] = ''; // 设置请求头为 Authorization
@@ -124,7 +124,7 @@ axios.interceptors.response.use(
 
 const user_id = window.localStorage.getItem("token") // 这个是必须要有唯一的id，可以取用户id
 sa.init({
-  server_url: global_.serverSrc+'/user/logdata', // 替换成自己的地址/MyBP
+  server_url: process.env.NODE_ENV==='production'?'/mybp/work/user/logdata':'/user/logdata', // 替换成自己的地址/MyBP
   show_log: false, // 打印console，自己配置，可以看到自己是否踩点成功，以及
   heatmap: {
      //是否开启点击图，默认 default 表示开启，自动采集 $WebClick 事件，可以设置 'not_collect' 表示关闭

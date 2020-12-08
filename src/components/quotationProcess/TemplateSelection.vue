@@ -13,8 +13,8 @@
                             <p class="template-title">{{item.name}}</p>
                             <p class="template-insurance" v-if="item.insurance.length!=0 && item.insurance[0].riskcode != ''">
                                 带险种：<span v-for="(itemI,indexI) in item.insurance" :key="indexI">
-                                    <span v-if="indexI < item.insurance.length-1" @click.stop="viewInsurance(itemI.riskcode)">{{itemI.riskcode}}<i class="el-icon-warning-outline"></i> + </span>
-                                    <span v-else @click.stop="viewInsurance(itemI.riskcode)"> {{itemI.riskcode}}<i class="el-icon-warning-outline"></i></span>
+                                    <span v-if="indexI < item.insurance.length-1" @click.stop="viewInsurance(itemI.riskcode)">{{itemI.riskshort}}<i class="el-icon-warning-outline"></i> + </span>
+                                    <span v-else @click.stop="viewInsurance(itemI.riskcode)"> {{itemI.riskshort}}<i class="el-icon-warning-outline"></i></span>
                                 </span>
                                 <span v-if="itemT.typecode == 'B'" >，可删193</span>
                             </p>
@@ -111,7 +111,7 @@ export default {
             //获取未提交模板(看有没有暂存) /index/checkFillMould  mouldcode--模板编码   procode--项目编码
             let params = {mouldcode:typeId,procode:localStorage.getItem('YF_mainstream_project_code'),rand: new Date().getTime()}
             new Promise(function(resolve,reject){
-                _that.$axios.post(_that.GLOBAL.serverSrc+'/index/checkFillMould',_that.$qs.stringify(params)).then(response =>{
+                _that.$axios.post('/index/checkFillMould',_that.$qs.stringify(params)).then(response =>{
                     console.log(response)
                     resolve(response);
                 })
@@ -178,7 +178,7 @@ export default {
                 }else{//如果data为空，那么用户之前一定没有选择过这个版本
                         console.log('没有选择过版本')
                          //选择模板开启报价，保存模板的险种代码 /index/saveFillMould  mouldcode --模板编码   procode --项目编码
-                        _that.$axios.post(_that.GLOBAL.serverSrc+'/index/saveFillMould',_that.$qs.stringify(params)).then(response =>{
+                        _that.$axios.post('/index/saveFillMould',_that.$qs.stringify(params)).then(response =>{
                             _that.loadingEaxc = false;
                             if(response.data.code == 200){
                                 console.log(response)
@@ -234,7 +234,7 @@ export default {
         },
         //查看具体险种--对话框
         viewInsurance: function(event){
-            this.$axios.get(this.GLOBAL.serverSrc+'/index/getRiskDetail',{
+            this.$axios.get('/index/getRiskDetail',{
                 params:{
                     riskno: event
                 }
@@ -263,7 +263,7 @@ export default {
         },
         //获取模板信息/index/getModelData
         getModelData: function(){
-            this.$axios.get(this.GLOBAL.serverSrc+'/index/getModelData').then(response => {
+            this.$axios.get('/index/getModelData').then(response => {
                 console.log(response);
                 if(response.data.code == 200){
                     this.allTemplate = response.data.data;
@@ -282,7 +282,7 @@ export default {
         },
         //获取暂存之后重现的数据getInquiryData
         getTempData(proserialNo,fun){
-            this.$axios.get(this.GLOBAL.serverSrc+'/index/getInquiryData',{
+            this.$axios.get('/index/getInquiryData',{
                 params:{
                     proserialno: proserialNo,
                     rand:new Date().getTime()
@@ -379,8 +379,8 @@ export default {
         // 初始化获取pdf文件
         getPdfCode (currentInsurance) {
             console.log("获取pdf文件")
-            let url = encodeURIComponent('/index/getPdfIo?riskcode='+currentInsurance)
-            this.pdfUrlIframe = '../../../static/pdf/web/viewer.html?file='+ url;
+            let url = encodeURIComponent('/mybp/work/index/getPdfIo?riskcode='+currentInsurance)
+            this.pdfUrlIframe = '../../../mybp/static/pdf/web/viewer.html?file='+ url;
             this.insuranceDialogVisiblePDF = true;
         },
 
@@ -480,7 +480,9 @@ export default {
                 .template-insurance{
                     font-size: 12px;
                     color: #bfbfbf;
-                    margin-top: 8px;
+                    margin-top: 13px;
+                    padding-right: 15px;
+                    line-height: 23px;
                 }
                 i{
                     position: absolute;

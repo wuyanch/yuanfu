@@ -40,7 +40,7 @@ export default {
     methods:{
         // 进来检查是否有项目
         checkIsPro: function(){
-            this.$axios.get(this.GLOBAL.serverSrc+'/index/getAllByUserInfo',{
+            this.$axios.get('/index/getAllByUserInfo',{
                     params:{
                         rand:new Date().getTime()
                     }
@@ -82,13 +82,14 @@ export default {
                 let _that = this;
                 let params = {proname:this.enterpriseName.replace(/^(\s|\u00A0)+/,'').replace(/(\s|\u00A0)+$/,''),rand:new Date().getTime()}//去左右空格
                 new Promise(function (resolve, reject) {
-                    _that.$axios.post(_that.GLOBAL.serverSrc+'/index/checkProjectName',_that.$qs.stringify(params)).then((response) => {
+                    _that.$axios.post('/index/checkProjectName',_that.$qs.stringify(params)).then((response) => {
                         console.log(response.data.code);
-                        resolve(response.data.code);
+                        // resolve(response.data.code);
+                        resolve(response.data);
                     })
-                }).then(function (checkCode){
+                }).then(function (resData){
                     console.log("里")
-                    if(checkCode == 500){
+                    if(resData.code == 500){//有该项目
                          console.log("里1")
                         _that.$confirm("该项目已在您的“项目列表”中，无需重复创建。",'',{
                             confirmButtonText: '去看看',
@@ -98,24 +99,27 @@ export default {
                             console.log("我按了确定");
                             _that.$clearTemporaryAll();//清空所有的步骤信息
                             localStorage.setItem('YF_mainstream_project',_that.enterpriseName.replace(/^(\s|\u00A0)+/,'').replace(/(\s|\u00A0)+$/,''))
+                            //缺省了项目的project_code，project_isAttention
+                            localStorage.setItem('YF_mainstream_project_code',resData.data.procode);
+                            localStorage.setItem('YF_mainstream_project_isAttention',resData.data.isattention);
                             _that.$router.push({path:'/'});
                         }).catch(() => {
                             
                         })
-                    }else{
+                    }else{//没有该项目
                         _that.$confirm("项目名称对您十分重要，创建后不能修改，请您仔细检查。",'',{
                             confirmButtonText: '确认创建',
                             cancelButtonText: '再看看',
                             showClose:false
                         }).then(() => {
                             //要加return
-                            return _that.$axios.post(_that.GLOBAL.serverSrc+'/index/createProject',_that.$qs.stringify(params)).then(function (response) {
+                            return _that.$axios.post('/index/createProject',_that.$qs.stringify(params)).then(function (response) {
                                 if(response.data.code == '200'){//创建成功
                                 console.log(response.data)
+                                    _that.$clearTemporaryAll();//清空所有的步骤信息
                                     localStorage.setItem('YF_mainstream_project',_that.enterpriseName.replace(/^(\s|\u00A0)+/,'').replace(/(\s|\u00A0)+$/,''))
                                     localStorage.setItem('YF_mainstream_project_code',response.data.data);
-                                    localStorage.setItem('YF_mainstream_project_isAttention',0)
-                                    _that.$clearTemporaryAll();//清空所有的步骤信息
+                                    localStorage.setItem('YF_mainstream_project_isAttention',0);
                                     _that.$router.push({path:'/'});
                                 }else{
                                     _that.$alert('抱歉，程序开小差了o(╥﹏╥)o，请稍后再试，或者联系IT人员','',{

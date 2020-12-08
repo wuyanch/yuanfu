@@ -94,7 +94,7 @@ export default {
     checkIfProject: function(){
       let that = this;
       new Promise(function (resolve, reject) {
-          that.$axios.get(that.GLOBAL.serverSrc+'/index/getProjectList',{
+          that.$axios.get('/index/getProjectList',{
               params:{
                   page:1,
                   size:10,
@@ -109,7 +109,7 @@ export default {
                 that.proname = localStorage.getItem('YF_mainstream_project');
                 that.haveEnterprise = true;
             }else{
-              that.$axios.get(that.GLOBAL.serverSrc+'/index/defuatProject',{
+              that.$axios.get('/index/defuatProject',{
                 params:{
                   rand:new Date().getTime()
                 }
@@ -170,7 +170,7 @@ export default {
     addFollow: function(){
       let that = this;
       let params = {isAttention:localStorage.getItem('YF_mainstream_project_isAttention')== 1? 0:1, procode:localStorage.getItem('YF_mainstream_project_code'),rand:new Date().getTime()}
-            this.$axios.post(this.GLOBAL.serverSrc+'/index/isAttention',this.$qs.stringify(params))
+            this.$axios.post('/index/isAttention',this.$qs.stringify(params))
             .then(response => {
               if(response.data.code == 200){
                 that.isAttention = that.isAttention == 1? 0:1;//改变状态位

@@ -28,8 +28,18 @@
                                 </el-option>
                             </el-select>
                             <div class="supplement" v-if="businessInformation != 'C20' &&businessInformation != 'C10' && businessInformation != ''">
-                               <p><label for=""><span class="tip" v-if="businessInformation != 'C40'">*</span>代理机构：</label><el-input v-model = "agency" placeholder="请输入内容" @focus="handleFocus" @blur="handleblur"></el-input></p>
-                               <p v-if="businessInformation != 'C40'"><label for=""><span class="tip">*</span>代理费：</label><el-input v-model = "agencyFee" placeholder="整单、分险种写都行" @focus="handleFocus" @blur="handleblur"></el-input></p>
+                               <p><label for=""><span class="tip" v-if="businessInformation != 'C40'">*</span>代理机构：</label>
+                               <el-input 
+                               type="textarea"
+                               resize="none"
+                               :rows="2"
+                               v-model = "agency" placeholder="请输入内容" maxlength="50" show-word-limit @focus="handleFocus" @blur="handleblur"></el-input></p>
+                               <p v-if="businessInformation != 'C40'"><label for=""><span class="tip">*</span>代理费：</label>
+                               <el-input 
+                               type="textarea"
+                               resize="none"
+                               :rows="2"
+                               v-model = "agencyFee" placeholder="整单、分险种写都行" maxlength="200" show-word-limit @focus="handleFocus" @blur="handleblur"></el-input></p>
                             </div>
                         </div>
                         <div>
@@ -117,12 +127,14 @@
                         <el-input
                         type="textarea"
                         resize="none"
-                        :rows="4"
+                        :rows="8"
                         placeholder="备注：如有其他需补充的信息或特殊需求，请填写在此处。 若无，可空。"
                         v-model="textareaRemarks"
                         @focus="handleFocus"
                         @blur="handleblur"
-                        class="remarks">
+                        class="remarks"
+                        maxlength="1000"
+                        show-word-limit>
                         </el-input>
                     </div>
                     <!-- 上传附件 -->
@@ -231,7 +243,7 @@ export default {
                     }
                 })
             }else{
-                this.$axios.delete(this.GLOBAL.serverSrc+'/index/delete/image',{
+                this.$axios.delete('/index/delete/image',{
                     params:{
                         'filename':file.name,
                         'proserialno':localStorage.getItem('YF_quotationInformation_proserialno')
@@ -346,7 +358,7 @@ export default {
                 console.log(this.fileData.getAll("files"))
                 that.fileData.append('proserialno',localStorage.getItem('YF_quotationInformation_proserialno'));
                 if(that.fileData.get("files") != null){
-                    that.$axios.post(that.GLOBAL.serverSrc+'/index/upload/image',that.fileData,{
+                    that.$axios.post('/index/upload/image',that.fileData,{
                         'Content-Type': 'multipart/form-data' 
                     },{timeout: 1000*60*10}).then(res =>{
                         //  成功
@@ -491,7 +503,7 @@ export default {
         },
         // 取图片列表
         getListPhoto: function(){
-            this.$axios.get(this.GLOBAL.serverSrc+'/index/list/image',{
+            this.$axios.get('/index/list/image',{
                     params:{
                         proserialno:localStorage.getItem('YF_quotationInformation_proserialno'),
                         rand:new Date().getTime()
@@ -831,7 +843,7 @@ export default {
         //获取业务渠道的内容/index/getAllSalesChannels获取业务渠道列表
         getSalesChannels(){
             let _that = this;
-            this.$axios.get(this.GLOBAL.serverSrc+'/index/getAllSalesChannels').then(response => {
+            this.$axios.get('/index/getAllSalesChannels').then(response => {
                 _that.options = response.data.data;
                 console.log(_that.options)
             }).catch(error =>{
@@ -910,12 +922,15 @@ export default {
             display: inline-block;
         }
         .el-input{
-            width: 75%;
+            width: 73%;
         }
         .supplement{
             margin-top: 5px;
             p{
-                margin-top: 3px;
+                margin-top: 10px;
+                label {
+                    padding: 3px 0;
+                }
             }
         }
     }
@@ -1177,6 +1192,10 @@ export default {
             font-size: 12px;
         }
         
+    }
+    .el-textarea__inner{
+        padding: 5px 15px 25px 15px;
+        font-size: 12px;
     }
     .el-form-item{
         height: 35px;

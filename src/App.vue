@@ -35,6 +35,9 @@ html{
   color: #373737;
 }
 body::-webkit-scrollbar {display: none;/*隐藏滚轮*/}
+body{
+  padding-right: 0px !important;
+}
 button,input{
   outline: none;
 }

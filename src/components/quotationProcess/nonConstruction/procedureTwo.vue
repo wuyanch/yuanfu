@@ -564,7 +564,7 @@ export default {
         },
         //查看险种简单条款
         lookResponsibility: function(code){
-             this.$axios.get(this.GLOBAL.serverSrc+'/index/getRiskDetail',{
+             this.$axios.get('/index/getRiskDetail',{
                 params:{
                     riskno: code
                 }
@@ -589,8 +589,8 @@ export default {
         // 初始化获取pdf文件
         getPdfCode (currentInsurance) {
             console.log("获取pdf文件")
-            let url = encodeURIComponent('/index/getPdfIo?riskcode='+currentInsurance)
-            this.pdfUrlIframe = '../../../static/pdf/web/viewer.html?file='+ url;
+            let url = encodeURIComponent('/mybp/work/index/getPdfIo?riskcode='+currentInsurance)
+            this.pdfUrlIframe = '../../../mybp/static/pdf/web/viewer.html?file='+ url;
             this.insuranceDialogVisiblePDF = true;
         },
         //回到主页
@@ -673,7 +673,7 @@ export default {
         getRiskRespByMouldcode: function(){
             let that = this;
             console.log("hello,第二步开始")
-            this.$axios.get(this.GLOBAL.serverSrc+'/index/getRiskRespByMouldcode',{
+            this.$axios.get('/index/getRiskRespByMouldcode',{
                 params:{
                     mouldcode:JSON.parse(localStorage.getItem('YF_quotationInformation_1')).templateSelection,
                     rand:new Date().getTime()
@@ -779,7 +779,7 @@ export default {
         //获取所有的能添加的数据 /index/getRiskData
         getRiskData: function(){
             let that = this;
-            this.$axios.get(this.GLOBAL.serverSrc+'/index/getRiskData',{
+            this.$axios.get('/index/getRiskData',{
                 params:{
                     mouldcode:JSON.parse(localStorage.getItem('YF_quotationInformation_1')).templateCode,
                     rand:new Date().getTime()

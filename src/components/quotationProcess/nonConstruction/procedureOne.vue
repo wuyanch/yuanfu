@@ -109,7 +109,7 @@
                         ]"
                         class="textareaEl"
                         >
-                        <el-input type="textarea" resize="none" v-model="domain.jobDescription"  @focus="handleFocus" @blur="handleblur" 
+                        <el-input type="textarea" resize="none" v-model="domain.jobDescription" maxlength="200" show-word-limit  @focus="handleFocus" @blur="handleblur" 
                             :placeholder="textareaPlaceholder[index][domain.occupationCategory]"></el-input>
                         </el-form-item>
                     </div>
@@ -642,6 +642,13 @@ export default {
     }
 }
 .procedure-content{
+    .el-textarea__inner{
+        padding: 15px 15px 25px 15px;
+    }
+    .el-textarea .el-input__count{
+        background: none;
+        bottom: -8px;
+    }
     .el-textarea{
         font-size: 12px;
     }

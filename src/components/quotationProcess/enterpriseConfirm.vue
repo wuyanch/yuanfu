@@ -11,7 +11,9 @@
                 type="textarea"
                 resize="none"
                 placeholder="可描述本项目的其他基本背景情况。"
-                v-model="textareaRecode">
+                v-model="textareaRecode"
+                maxlength="2000"
+                show-word-limit>
                 </el-input></p>
         </div>
         <el-dialog
@@ -75,7 +77,7 @@ export default {
         getIndustryList: function(){
             let _that = this;
             new Promise(function(resolve,reject){
-                _that.$axios.get(_that.GLOBAL.serverSrc+'/index/getIndustryList').then(response => {
+                _that.$axios.get('/index/getIndustryList').then(response => {
                     _that.centerDialogVisibleList = response.data.data;
                     console.log(JSON.stringify(_that.centerDialogVisibleList))
                     resolve(response.data.code)
@@ -86,7 +88,7 @@ export default {
                 })
             }).then(function(industryCode){
                 if(industryCode == 200){
-                    _that.$axios.get(_that.GLOBAL.serverSrc+'/index/getProDetail',{
+                    _that.$axios.get('/index/getProDetail',{
                         params:{
                             procode : localStorage.getItem('YF_mainstream_project_code'),
                             rand: new Date().getTime()
@@ -129,7 +131,7 @@ export default {
         toSaveOrUpdateProDetail: function(){//procode--项目编码  industrycode--行业编码 unitnum --单位人数  remark--描述
             let params = {procode:localStorage.getItem('YF_mainstream_project_code'),industrycode:this.selectIndustryCode,unitnum:this.totalNum,remark:this.textareaRecode,rand:new Date().getTime()}
             
-            this.$axios.post(this.GLOBAL.serverSrc+'/index/saveOrUpdateProDetail',this.$qs.stringify(params)).then(response => {
+            this.$axios.post('/index/saveOrUpdateProDetail',this.$qs.stringify(params)).then(response => {
                 let quotationInformation = {totalNum:this.totalNum,industry:this.selectIndustry,selectIndustryCode:this.selectIndustryCode,textareaRecode:this.textareaRecode};
                 localStorage.setItem("quotationInformation_0",JSON.stringify(quotationInformation));
                 console.log(response);
@@ -195,7 +197,7 @@ export default {
 }
 .information-remark{
     padding: 10px;
-    height: 200px;
+    height: 250px;
     span{
         display: inline-block;
         margin-bottom: 10px;
@@ -257,9 +259,12 @@ export default {
     }
     .information-remark{
         textarea{
-            height: 160px;
+            height: 200px;
             width: 100%;
             font-size: 12px;
+        }
+        .el-textarea__inner{
+            padding: 15px 15px 25px 15px;
         }
     }
     .pDialog {

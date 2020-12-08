@@ -104,7 +104,7 @@ export default {
         init: function(){
             let that = this;
             new Promise(function (resolve, reject) {
-                that.$axios.get(that.GLOBAL.serverSrc+'/index/getProjectList',{
+                that.$axios.get('/index/getProjectList',{
                     params:{
                         page:1,
                         size:10,
@@ -126,7 +126,7 @@ export default {
                 })
             }).then(function (amount){
                  console.log("getAllByUserInfo")
-                return that.$axios.get(that.GLOBAL.serverSrc+'/index/getAllByUserInfo',{
+                return that.$axios.get('/index/getAllByUserInfo',{
                     params:{
                         rand:new Date().getTime()
                     }
@@ -184,7 +184,7 @@ export default {
         followClick:function(procode,index){
             let newAttention = this.enterpriseList[index].isattention == "1"? "0":"1";
             let params = {isAttention:newAttention, procode:procode,rand:new Date().getTime()}
-            this.$axios.post(this.GLOBAL.serverSrc+'/index/isAttention',this.$qs.stringify(params))
+            this.$axios.post('/index/isAttention',this.$qs.stringify(params))
             .then(response => {
                 this.$set(this.enterpriseList[index],"isattention",this.enterpriseList[index].isattention == "1"? "0":"1");//改变状态位
             }).catch(error => {
@@ -253,7 +253,7 @@ export default {
                 isattention:(obj.isattention==undefined||obj.isattention==null)?'':obj.isattention,
                 isSelect_flag:(obj.isSelect_flag==undefined||obj.isSelect_flag==null)?false:obj.isSelect_flag
             }
-            this.$axios.get(this.GLOBAL.serverSrc+'/index/getProjectList',{
+            this.$axios.get('/index/getProjectList',{
                     params:{
                         page:objc.page,
                         size:10,
