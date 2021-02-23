@@ -49,8 +49,8 @@
                          <div class="qutotation-time">
                             <p><span>提交时间</span><span>{{item.createtime}}</span></p><p>
                                 <span>核保时间</span><span v-if="item.approvetime!=null">{{item.approvetime}}</span>
-                                <span v-else-if="item.approvetime==null && item.status == 1">待审核,请等待</span>
-                                <span v-else-if="item.approvetime==null && item.status == 2">审核中,请等待</span></p>
+                                <span v-else-if="item.approvetime==null && item.status == 1">--</span>
+                                <span v-else-if="item.approvetime==null && item.status == 2">--</span></p>
                          </div>
                          <div class="qutotaion-btn" v-if="item.status != 2">
                             <button @click.stop="askAgain(item.proserialno,item.mouldcode)" vkshop-event-name="再询一次" vkshop-event-type="click">再询一次</button>
@@ -156,6 +156,20 @@ export default {
         this.enterpriseCurName = localStorage.getItem('YF_mainstream_project');
         this.initQuotation();
     },
+    activated() {
+        if(!this.$route.meta.isUseCache){ //isUseCache 时添加中router中的元信息，判读是否要缓存
+            this.initQuotation();
+            this.inputContent = '';//搜索输入框
+            this.selectContent = '';//搜索选择框
+            this.selectTime = '';//选择的时间段
+            this.radio = ''
+        }
+    },
+    // 设置了keepAlive缓存的组件：      
+　  //第一次进入：beforeRouterEnter ->created->…->activated->…->deactivated        
+　　//后续进入时：beforeRouterEnter ->activated->deactivated 可以看出，只有第一次进入该组件时，
+    //才会走created钩子，而需要缓存的组件中activated是每次都会走的钩子函数。所以，我们要在这个钩子里面去判断，
+    //当前组件是需要使用缓存的数据还是重新刷新获取数据。
     methods:{
         //初始化页面
         initQuotation(){
@@ -172,13 +186,18 @@ export default {
                 if(response.data.code == 200){
                     if(response.data.data.total != 0){
                         this.quotationListArray = response.data.data.items;
-                        this.totalAll = response.data.data.total
+                        this.totalAll = response.data.data.total;
+                        this.currentPage = 1;
                     }else{
                         this.quotationListArray = [];
                         this.selectContentFlag = true;
                         this.noDataTip = '暂时还没有报价哦~';
                         this.isNodata = true;
                     }
+                }else{
+                    this.$alert('出错啦！获取不到报价','',{
+                        confirmButtonText:'好的，我明白了'
+                    }).catch(()=>{})
                 }
             }).catch(error =>{
                 this.$alert('抱歉，程序开小差了o(╥﹏╥)o，请稍后再试，或者联系IT人员','',{
@@ -239,6 +258,10 @@ export default {
                             this.noDataTip = "此时间段内没有询价，请更换条件";
                             this.isNodata = true;
                         }
+                    }else{
+                        this.$alert('出错啦！没有获取到该条件的询价','',{
+                            confirmButtonText:'好的，我明白了'
+                        }).catch(()=>{})
                     }
                 }).catch(error =>{
                     this.$alert('抱歉，程序开小差了o(╥﹏╥)o，请稍后再试，或者联系IT人员','',{
@@ -273,6 +296,10 @@ export default {
                         this.noDataTip = "此条件内没有询价，请更换条件"
                         this.isNodata = true;
                     }
+                }else{
+                    this.$alert('查询失败，请重新查询','',{
+                        confirmButtonText:'好的，我明白了'
+                    }).catch(()=>{})
                 }
             }).catch(error =>{
                 this.$alert('抱歉，程序开小差了o(╥﹏╥)o，请稍后再试，或者联系IT人员','',{
@@ -302,7 +329,26 @@ export default {
         },
         //再询一单
         askAgain: function(proserialno,mouldcode){
-            this.$confirm('请确认是否参照本方案提交一份新的询价。（可以微调细节）<br/>请问您确定再询一次吗？', '', {
+            console.log("我是再询一单的："+proserialno);
+            let params = {proserialno: proserialno, rand: new Date().getTime()}, that = this;
+            this.beforeCreateAnother(params,function(response){
+                console.log(response);
+                let msgg = ''
+                if(response.data.code == "200"){
+                    if(response.data.msg != null &&  response.data.msg != ''){
+                        msgg = '请确认是否参照本方案提交一份新的询价。<br/>请问您确定再询一次吗？<br/><span style="color:red">注意：'+response.data.msg+'责任已下架。需要删除该责任后重新提交询价。</span><br/>如有疑问，请咨询您的团核人员。'
+                        that.trueAskAgain(proserialno,mouldcode,msgg);
+                    }else{
+                        msgg = '请确认是否参照本方案提交一份新的询价。（可以微调细节）<br/>请问您确定再询一次吗？'
+                        that.trueAskAgain(proserialno,mouldcode,msgg);
+                    }
+                }
+            });
+            
+        },
+        //真的开始询价
+        trueAskAgain: function(proserialno,mouldcode,msg){
+            this.$confirm(msg, '', {
                 distinguishCancelAndClose: true,
                 dangerouslyUseHTMLString:  true,
                 confirmButtonText: '确认再询一次',
@@ -317,12 +363,13 @@ export default {
                         console.log(response)
                         resolve(response);
                     }).catch(error =>{
-                        this.$alert('抱歉，程序开小差了o(╥﹏╥)o，请稍后再试，或者联系IT人员','',{
+                        _that.$alert('抱歉，程序开小差了o(╥﹏╥)o，请稍后再试，或者联系IT人员','',{
                             confirmButtonText:'好的，我明白了'
                         }).catch(()=>{})
                     })
                 }).then(function(responseF){
-                   
+                    console.log('如果data不为空，那么用户之前一定选择过这个模板')
+                    console.log(responseF)
                 //如果data不为空，那么用户之前一定选择过这个模板
                     if(responseF.data != '' && responseF.data != null){
                         //判断模板是否被暂存过
@@ -338,9 +385,7 @@ export default {
                                 //把所有的数据存储在localstorage里
                                 _that.getPlanContent(proserialno,mouldcode,0);
                                 localStorage.setItem('YF_quotationInformation_proserialno',responseF.data.proserialno);
-                            }).catch(action =>{
-                               
-                            })
+                            }).catch(action =>{})
                         }else{//若果为假，那么从头开始填写
                             _that.loadingEaxc = true;
                             _that.getPlanContent(proserialno,mouldcode,0);
@@ -366,21 +411,55 @@ export default {
             let params = {proserialno: proserialno, rand: new Date().getTime(), ifCreateSerial: ifCreateSerialText}
             this.$axios.post('/index/createAnotherOrder',this.$qs.stringify(params)).then(response =>{
                     console.log(response);
+                    that.loadingEaxc = false;
                     if(response.data.code == 200){
                         if(ifCreateSerialText == 1){
                             localStorage.setItem('YF_quotationInformation_proserialno',response.data.data.proserialno);
                         }
                         let quotationInformation = {templateSelection:mouldcode,templateCode:mouldcode.split('')[0]};
                         localStorage.setItem("YF_quotationInformation_1",JSON.stringify(quotationInformation));
-                        this.putDataToLocal(response.data.data);
-                        this.jumpPage(mouldcode,response.data.tempsavestep);
-                        this.getItemP();
+                        that.putDataToLocal(response.data.data);
+                        that.jumpPage(mouldcode,response.data.tempsavestep);
+                        that.getItemP();
+                       
+                    }else{
+                        that.$alert('再询一单操作失败，请稍后重试','',{
+                            confirmButtonText:'好的，我明白了'
+                        }).catch(()=>{})
                     }
                 }).catch(error =>{
                     that.$alert('抱歉，程序开小差了o(╥﹏╥)o，请稍后再试，或者联系IT人员','',{
                         confirmButtonText:'好的，我明白了'
                     }).catch(()=>{})
                 })
+        },
+        //再询一单的询价前检测是否含有下架产品
+        beforeCreateAnother: function(params,fun){
+            console.log(params)
+            this.$axios.post('/index/beforeCreateAnother',this.$qs.stringify(params)).then(response =>{
+                fun(response)
+                console.log("ma呀，不是删数据，是检测数据")
+                console.log(response);
+            })
+        },
+        // 检测获取的信息中是否含有下架的产品--20210126
+        checkShelfProduct: function(param,funProduct){
+            let shelfProduct = '', checkShelfProductFlag = false, tempShelf = [];//false--不含有下架产品
+            param.forEach(element => {
+                element.data.forEach(index => {//进入每个data里面
+                    index.responsibilityData.forEach(indexData => {
+                        if( indexData.ifOffShelf != undefined && indexData.ifOffShelf == true ){
+                            checkShelfProductFlag = true;
+                            if(tempShelf.indexOf(indexData.responsibilityNameCode) == -1){
+                                shelfProduct +=  indexData.responsibilityNameCode + indexData.riskshort + '、'  ;
+                                tempShelf.push(indexData.responsibilityNameCode);
+                            }
+                        }
+                    })
+                })
+            });
+
+            funProduct(shelfProduct.slice(0,shelfProduct.length-1),checkShelfProductFlag)
         },
         //获取项目信息
         getItemP: function(){
@@ -417,6 +496,10 @@ export default {
                                 textareaRecode:response.data.data[0].remark
                             };
                             localStorage.setItem("quotationInformation_0",JSON.stringify(quotationInformation));
+                        }else{
+                            this.$alert('该项目信息不存在','',{
+                                confirmButtonText:'好的，我明白了'
+                            }).catch(()=>{})
                         }
                     })
                 }
@@ -557,6 +640,10 @@ export default {
                             this.noDataTip = "此时间段内没有询价，请更换条件";
                             this.isNodata = true;
                         }
+                    }else{
+                        this.$alert('查询失败，请重试','',{
+                            confirmButtonText:'好的，我明白了'
+                        }).catch(()=>{})
                     }
                 }).catch(error =>{
                     this.$alert('抱歉，程序开小差了o(╥﹏╥)o，请稍后再试，或者联系IT人员','',{
@@ -564,6 +651,15 @@ export default {
                     }).catch(()=>{})
                 })
         }
+    },
+    beforeRouteLeave(to, from, next){
+        // 列表页面跳转到 详情页时，设置需要缓存
+        if(to.name=='quotationDetail'){
+            from.meta.isUseCache = true;
+        }else{
+            from.meta.isUseCache = false;
+        }
+        next()
     }
 }
 </script>
@@ -761,7 +857,8 @@ export default {
     .eaxc-loading{
         width: 50%;
         height: 70px;
-        position: absolute;
+        // position: absolute;
+        position: fixed;
         top: 50%;
         margin: 0 auto;
         left: 50%;
@@ -825,7 +922,7 @@ span.el-pagination__total{
 .quotation-list-page{
     .eaxc-loading{
         .el-loading-spinner{
-             margin-top: 10px;
+             margin-top: 6px;
              p{
                  font-size: 12px;
              }

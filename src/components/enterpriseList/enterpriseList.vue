@@ -24,8 +24,8 @@
             <div class="enterprise-scroll" v-if="initLoading == true">
                 <!-- 全部项目为0 -->
                 <ul v-if="enterpriseList != null">
-                    <li v-for="(item,index) in enterpriseList" :key="index" @click.stop="lookProject(item)">
-                        <div :vkshop-event-name="item.proname" vkshop-event-type="click">
+                    <li v-for="(item,index) in enterpriseList" :key="index" @click.stop="lookProject(item)" >
+                        <div :vkshop-event-param="'project=' + item.proname" vkshop-event-name="切换项目" vkshop-event-type="click">
                             <p class="enterprise-name">{{item.proname}}</p><p class="enterprise-time">项目创建时间：{{item.createtime}}</p>
                             <p class="enterprise-follow-btn"><button v-if="item.isattention == '1'" class="follow" @click.stop="followClick(item.procode,index)">已关注</button><button class="no-follow" @click.stop="followClick(item.procode,index)" v-else>添加到关注</button></p>
                             <i class="el-icon-arrow-right"></i>
@@ -119,7 +119,10 @@ export default {
                                 that.enterpriseList = response.data.data.items;
                                 that.allTotal = response.data.data.total;
                             }
-                            
+                        }else{
+                            that.$alert('出错啦！获取数据失败','',{
+                                confirmButtonText:'好的，我知道了~'
+                            }).catch(()=>{})
                         }
                         console.log(that.enterpriseList);
                         resolve(response);
@@ -140,15 +143,17 @@ export default {
                                     that.allProjectName.push({'value': response.data.data[i].proname})
                                 }
                             }
+                        }else{
+                            that.$alert('出错啦！获取数据失败','',{
+                                confirmButtonText:'好的，我知道了~'
+                            }).catch(()=>{})
                         }
                     console.log(that.allProjectName)
                 })
             }).catch(function (error) {
                 that.$alert('服务器开小差，请稍后再来~','',{
                     confirmButtonText:'好的，我知道了~'
-                }).catch(()=>{
-                    
-                })
+                }).catch(()=>{})
             })
         },
         handleChange(val){},
@@ -238,11 +243,11 @@ export default {
             localStorage.setItem('YF_mainstream_project_code',event.procode)
             localStorage.setItem('YF_mainstream_project_isAttention',event.isattention)
             this.$clearTemporaryAll();//清楚所有步骤的信息
-            this.$router.push({path:'/'});
+            this.$router.push({path:'/',query:{procode:localStorage.getItem('YF_mainstream_project_code')}});
         },
         //返回上一步
         goHome: function(){
-            this.$router.push({path:'/'});
+            this.$router.push({path:'/',query:{procode:localStorage.getItem('YF_mainstream_project_code')}});
         },
         //统一一个函数page--页数,proname--项目名称,isSelect_flag--是否为搜索
         getData: function (obj) {
@@ -279,7 +284,10 @@ export default {
                                 that.noDataTip = '没有符合条件的项目'
                             }
                         }
-                        
+                    }else{
+                        that.$alert('出错啦！获取数据失败','',{
+                            confirmButtonText:'好的，我知道了~'
+                        }).catch(()=>{})
                     }
                     document.getElementsByClassName("enterprise-scroll")[0].scrollTop = 0;
                 }).catch(function (error) {

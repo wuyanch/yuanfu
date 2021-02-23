@@ -167,7 +167,9 @@ export default new Router({
       component: () => import('@/components/quotationList/quotationList.vue'),
       meta:{
         // 页面标题title
-        title: '询价清单列表'
+        title: '询价清单列表',
+        isUseCache: false, // 默认不缓存
+        keepAlive: true//keep-alive
       }
     },{
       path:'/quotationDetail',

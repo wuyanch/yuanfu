@@ -206,8 +206,6 @@ export default {
                             _that.picList = res.data.data;
                             _that.getPhotoList();
                         }
-                       
-                        
                     }else{
                        
                     }

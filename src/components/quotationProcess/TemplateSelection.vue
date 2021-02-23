@@ -130,18 +130,28 @@ export default {
                     _that.loadingEaxc = false;
                     localStorage.setItem('YF_quotationInformation_proserialno',responseF.data.proserialno);
                     if(responseF.data.ifHaveTempData){
-                        _that.$confirm('该模板您之前有暂存过内容，是否继续编辑','',{
+                        let tipContent = '该模板您之前有暂存过内容，是否继续编辑';
+                        if(responseF.data.ifIncludeOffShelf){//暂存内容含有下架产品
+                            tipContent ='该模板您之前有暂存过内容且暂存的内容中含有已下架'+responseF.data.message+'，是否继续编辑';
+                        }
+                        _that.$confirm(tipContent,'',{
                             confirmButtonText:'继续编辑',
                             cancelButtonText:'重新开始',
-                            distinguishCancelAndClose:true
+                            distinguishCancelAndClose:true,
+                            showClose:false
                         }).then(()=>{//继续编辑
                             _that.loadingEaxc = true;
                             console.log('缓存')
                             //把所有的数据存储在localstorage里
 
-                            _that.getTempData(responseF.data.proserialno,function(res){
+                            _that.getTempData(responseF.data.proserialno,function(res,newOrCome){
                                 _that.putDataToLocal(res);
-                                _that.jumpPage(typecode,res.tempsavestep);
+                                if(newOrCome != null){
+                                    _that.jumpPage(typecode,newOrCome?"2":"1");
+                                }else{
+                                    _that.jumpPage(typecode,res.tempsavestep);
+                                }
+                                
                                 console.log("tempData")
                                 console.log(res);
                                 console.log(JSON.stringify(res))
@@ -243,6 +253,10 @@ export default {
                 if(response.data.code == 200){
                     this.insuranceDialogData = response.data.data[0];
                     this.insuranceDialogVisible = true;
+                }else{
+                    this.$alert('出错啦！无法获取相关的险种信息','',{
+                        confirmButtonText:'好的，我明白了'
+                    }).catch(()=>{})
                 }
             }).catch(error =>{
                 this.$alert('抱歉，程序开小差了o(╥﹏╥)o，请稍后再试，或者联系IT人员','',{
@@ -291,9 +305,25 @@ export default {
                 console.log('重现数据')
                 console.log(response);
                 if(response.data.code != '500'){//获取成功
-                    fun(response.data.data)
+                    let tipContent = '';
+                    if(response.data.data.ifIncludeOffShelf){//暂存内容含有下架产品
+                        tipContent ='该模板您之前有暂存过内容且暂存的内容中'+response.data.data.message+'，是否继续编辑';
+                        this.$confirm(tipContent,'',{
+                            confirmButtonText:'继续编辑',
+                            cancelButtonText:'重新开始',
+                            distinguishCancelAndClose:true,
+                            showClose:false
+                        }).then(()=>{//继续编辑
+                            fun(response.data.data,true)
+                        }).catch(()=>{
+                            fun(0,false)
+                        });
+                    }else{
+                        fun(response.data.data,null)
+                    }
+                    
                 }else{
-                    fun(0)
+                    fun(0,null)
                 }
             }).catch(error =>{
                 this.$alert('抱歉，程序开小差了o(╥﹏╥)o，请稍后再试，或者联系IT人员','',{
@@ -381,6 +411,9 @@ export default {
             console.log("获取pdf文件")
             let url = encodeURIComponent('/mybp/work/index/getPdfIo?riskcode='+currentInsurance)
             this.pdfUrlIframe = '../../../mybp/static/pdf/web/viewer.html?file='+ url;
+            //------20210202测试
+            // let url = encodeURIComponent('/index/getPdfIo?riskcode='+currentInsurance)
+            // this.pdfUrlIframe = '../../../static/pdf/web/viewer.html?file='+ url;
             this.insuranceDialogVisiblePDF = true;
         },
 

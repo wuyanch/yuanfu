@@ -9,7 +9,7 @@
                 <div class="preview-content">
                     <div class="preview-scroll" >
                         <div v-if="BusinessInformation.length != 0">
-                        <!-- 核保结果 -->
+                            <!-- 核保结果 -->
                             <div class="preview-part">
                             <!-- 头部 -->
                             <div class="part-head">
@@ -60,89 +60,92 @@
                                 <p class="confidential">内部签报，注意保密。请勿转发！</p>
                             </div>
                             </div>
-                        <!-- 项目信息 -->
+                            <!-- 项目信息 -->
                             <div class="preview-part">
                            
-                            <div class="part-head">
-                                <span>项目信息</span>
-                                <el-button  @click="changeBlock(0)"><span v-if="dynamicValidateFormOpen[0].open">收起</span><span v-else>展开</span></el-button>
-                               
-                            </div>
-                            <div v-if="dynamicValidateFormOpen[0].open">
-                                <el-divider class ='headC'></el-divider>
-                                <!-- 单位信息 -->
-                                <div class="part-content part-unit">
-                                    <div v-if="UnitInformation.isChange == false">
-                                        <p class="part-pre-title">单位信息</p>
-                                        <p><span>行业</span><span>：</span><span>{{UnitInformation.old.industry}}</span></p>
-                                        <p><span>单位人数(人)</span><span>：</span><span>{{UnitInformation.old.unitnum}}</span></p>
-                                    </div>
-                                    <div v-else>
-                                        <div>
-                                            <p class="part-pre-title">提交时单位信息</p>
+                                <div class="part-head">
+                                    <span>项目信息</span>
+                                    <el-button  @click="changeBlock(0)"><span v-if="dynamicValidateFormOpen[0].open">收起</span><span v-else>展开</span></el-button>
+                                
+                                </div>
+                                <div v-if="dynamicValidateFormOpen[0].open">
+                                    <el-divider class ='headC'></el-divider>
+                                    <!-- 单位信息 -->
+                                    <div class="part-content part-unit" v-if="UnitInformation.length != 0">
+                                        <div v-if="UnitInformation.isChange == false">
+                                            <p class="part-pre-title">单位信息</p>
                                             <p><span>行业</span><span>：</span><span>{{UnitInformation.old.industry}}</span></p>
                                             <p><span>单位人数(人)</span><span>：</span><span>{{UnitInformation.old.unitnum}}</span></p>
                                         </div>
+                                        <div v-else>
+                                            <div>
+                                                <p class="part-pre-title">提交时单位信息</p>
+                                                <p><span>行业</span><span>：</span><span>{{UnitInformation.old.industry}}</span></p>
+                                                <p><span>单位人数(人)</span><span>：</span><span>{{UnitInformation.old.unitnum}}</span></p>
+                                            </div>
+                                            <div>
+                                                <p class="part-pre-title">目前的单位信息</p>
+                                                <p><span>行业</span><span>：</span><span>{{UnitInformation.current.industry}}</span></p>
+                                                <p><span>单位人数(人)</span><span>：</span><span>{{UnitInformation.current.unitnum}}</span></p>
+                                            </div>
+                                        </div>
+                                    </div>
+                                    <div class="part-content part-unit" v-else><p>没有获取到单位信息</p></div>
+                                    <!-- 业务信息 -->
+                                    <div class="part-content part-service" v-if="BusinessInformation.length != 0">
+                                        <p class="part-pre-title">业务信息</p>
+                                        <p><span>业务渠道</span><span>：</span><span>{{BusinessInformation.saleschannel}}</span></p>
+                                        <p v-if="BusinessInformation.agencyname != null && BusinessInformation.agencyname != ''"><span>代理机构名称</span><span>：</span><span>{{BusinessInformation.agencyname}}</span></p>
+                                        <p v-if="BusinessInformation.agencyfee != null && BusinessInformation.agencyfee != ''"><span>代理费</span>：<span>{{BusinessInformation.agencyfee}}</span></p>
+                                        <p><span>拟投保总人数(人)</span><span>：</span><span>{{BusinessInformation.sum}}</span></p>
+                                    </div>
+                                    <div class="part-content part-service" v-else><p>没有获取到业务信息</p></div>
+                                    <!-- 补充信息 -->
+                                    <div class="part-content part-remark" v-if="BusinessInformation.length != 0">
+                                        <p class="part-pre-title">补充信息</p>
+                                        <p><span>备注</span><span>：</span><span v-if="BusinessInformation.sideinformation != null && BusinessInformation.sideinformation != ''">{{BusinessInformation.sideinformation}}</span><span v-else>--</span></p>
                                         <div>
-                                            <p class="part-pre-title">目前的单位信息</p>
-                                            <p><span>行业</span><span>：</span><span>{{UnitInformation.current.industry}}</span></p>
-                                            <p><span>单位人数(人)</span><span>：</span><span>{{UnitInformation.current.unitnum}}</span></p>
+                                            <span>上传图片</span><span>：</span>
+                                            <div v-if="isPicList == true">
+                                                <ul v-if="picList.length>0">
+                                                    <li v-for="(item,index) in picList" :key="index">
+                                                        <el-image 
+                                                            style="width: 100px; height: 100px"
+                                                            :src="item.url"
+                                                            fit="cover"
+                                                            :preview-src-list="PhotoList">
+                                                        </el-image>
+                                                    </li>
+                                                </ul>
+                                            </div>
+                                            <div v-else><i class="el-icon-loading"></i>正在加载中...</div>
                                         </div>
                                     </div>
-                                </div>
-                                <!-- 业务信息 -->
-                                <div class="part-content part-service">
-                                    <p class="part-pre-title">业务信息</p>
-                                    <p><span>业务渠道</span><span>：</span><span>{{BusinessInformation.saleschannel}}</span></p>
-                                    <p v-if="BusinessInformation.agencyname != null && BusinessInformation.agencyname != ''"><span>代理机构名称</span><span>：</span><span>{{BusinessInformation.agencyname}}</span></p>
-                                    <p v-if="BusinessInformation.agencyfee != null && BusinessInformation.agencyfee != ''"><span>代理费</span>：<span>{{BusinessInformation.agencyfee}}</span></p>
-                                    <p><span>拟投保总人数(人)</span><span>：</span><span>{{BusinessInformation.sum}}</span></p>
-                                </div>
-                                <!-- 补充信息 -->
-                                <div class="part-content part-remark">
-                                    <p class="part-pre-title">补充信息</p>
-                                    <p><span>备注</span><span>：</span><span v-if="BusinessInformation.sideinformation != null && BusinessInformation.sideinformation != ''">{{BusinessInformation.sideinformation}}</span><span v-else>--</span></p>
-                                    <div>
-                                        <span>上传图片</span><span>：</span>
-                                        <div v-if="isPicList == true">
-                                            <ul v-if="picList.length>0">
-                                                <li v-for="(item,index) in picList" :key="index">
-                                                     <el-image 
-                                                        style="width: 100px; height: 100px"
-                                                        :src="item.url"
-                                                        fit="cover"
-                                                        :preview-src-list="PhotoList">
-                                                    </el-image>
-                                                </li>
-                                            </ul>
-                                        </div>
-                                        <div v-else><i class="el-icon-loading"></i>正在加载中...</div>
-                                    </div>
+                                    <div class="part-content part-remark" v-else><p>没有获取到业务信息</p></div>
                                 </div>
                             </div>
-                         </div>
                        
                      
-                        <!-- 计划信息 -->
+                            <!-- 计划信息 -->
                             <div class="preview-part" v-for="(item1,index1) in aggregate" :key="index1">
-                            
-                            <div class="part-head">
-                                <span>计划{{index1+1}}({{item1.planname}})</span>
-                                <el-button  @click="changeBlock(index1+1)"><span v-if="dynamicValidateFormOpen[index1+1].open">收起</span><span v-else>展开</span></el-button>
-                            </div>
-                            <el-divider class ='headC'></el-divider>
-                            <div class="part-content plan-pre" v-if="dynamicValidateFormOpen[index1+1].open"> 
                                 
-                                <div class="part-plan-inform plan-base">
-                                    <p><span>人员类型</span><span>：</span><span>{{item1.ptype}}</span></p>
-                                    <p><span>社保情况</span><span>：</span><span>{{item1.socialscy}}</span></p>
-                                    <p><span>投保人数(人)</span><span>：</span><span>{{item1.insurenum}}</span></p>
-                                    <p><span>平均年龄(岁)</span><span>：</span><span>{{item1.aveage}}</span></p>
-                                    <p><span>职业类别</span><span>：</span><span>{{item1.jobtype}}</span></p>
-                                    <p><span>工种描述</span><span>：</span><span>{{item1.worktype}}</span></p>
-                                </div> 
-                                <!-- 未审核完成 1/2 -->
-                                <div v-if="currentStatus == 1 ||currentStatus == 2 " class="plan-deploy">
+                                <div class="part-head">
+                                    <span>计划{{index1+1}}({{item1.planname}})</span>
+                                    <el-button  @click="changeBlock(index1+1)"><span v-if="dynamicValidateFormOpen[index1+1].open">收起</span><span v-else>展开</span></el-button>
+                                </div>
+                                <el-divider class ='headC'></el-divider>
+                                <div class="part-content plan-pre" v-if="dynamicValidateFormOpen[index1+1].open"> 
+                                    
+                                    <div class="part-plan-inform plan-base">
+                                        <p><span>人员类型</span><span>：</span><span>{{item1.ptype}}</span></p>
+                                        <p><span>社保情况</span><span>：</span><span>{{item1.socialscy}}</span></p>
+                                        <p><span>投保人数(人)</span><span>：</span><span>{{item1.insurenum}}</span></p>
+                                        <p><span>平均年龄(岁)</span><span>：</span><span>{{item1.aveage}}</span></p>
+                                        <p><span>职业类别</span><span>：</span><span>{{item1.jobtype}}</span></p>
+                                        <p><span>工种描述</span><span>：</span><span>{{item1.worktype}}</span></p>
+                                    </div> 
+                                    <!-- 未审核完成 1/2 -->
+                                    <div v-if="currentStatus == 1 ||currentStatus == 2 " class="plan-deploy">
                                         <div class="basic-information" v-for="(item2,index2) in item1.inquiryVoList" :key="index2">
                                             <el-divider>{{item2.typename}}</el-divider>
                                             <div>
@@ -177,7 +180,7 @@
                                                                         <span v-else>(共用额度：<span class="mony"><span class="mony-before">{{item3.respList[2].insureamount | numFilterBefore}}</span>.<span class="mony-after">{{item3.respList[2].insureamount | numFilterAfter}}</span></span>万元)</span>
                                                                     </span>
                                                                     <span v-else>
-                                                                         <span v-if="item3.respList[0].insureamount > item3.respList[1].insureamount">
+                                                                            <span v-if="item3.respList[0].insureamount > item3.respList[1].insureamount">
                                                                             (共用额度：<span class="mony"><span class="mony-before">{{item3.respList[0].insureamount | numFilterBefore}}</span>.<span class="mony-after">{{item3.respList[0].insureamount | numFilterAfter}}</span></span>万元)</span>
                                                                         <span v-else>(共用额度：<span class="mony"><span class="mony-before">{{item3.respList[1].insureamount | numFilterBefore}}</span>.<span class="mony-after">{{item3.respList[1].insureamount | numFilterAfter}}</span></span>万元)</span>
                                                                     </span>
@@ -206,10 +209,10 @@
                                                 </ul>
                                             </div>
                                         </div>
-                                </div> 
+                                    </div> 
 
-                                <!-- 险种责任 已审核3/4-->
-                                <div v-else class="plan-deploy">
+                                    <!-- 险种责任 已审核3/4-->
+                                    <div v-else class="plan-deploy">
                                         <div class="basic-information" v-for="(item2,index2) in item1.inquiryVoList" :key="index2">
                                             <el-divider>{{item2.typename}}</el-divider>
                                             <div>
@@ -256,7 +259,7 @@
                                                                         <span v-else>(共用额度：<span class="mony"><span class="mony-before">{{item3.respList[2].insureamount | numFilterBefore}}</span>.<span class="mony-after">{{item3.respList[2].insureamount | numFilterAfter}}</span></span>万元)</span>
                                                                     </span>
                                                                     <span v-else>
-                                                                         <span v-if="item3.respList[0].insureamount > item3.respList[1].insureamount">
+                                                                            <span v-if="item3.respList[0].insureamount > item3.respList[1].insureamount">
                                                                             (共用额度：<span class="mony"><span class="mony-before">{{item3.respList[0].insureamount | numFilterBefore}}</span>.<span class="mony-after">{{item3.respList[0].insureamount | numFilterAfter}}</span></span>万元)</span>
                                                                         <span v-else>(共用额度：<span class="mony"><span class="mony-before">{{item3.respList[1].insureamount | numFilterBefore}}</span>.<span class="mony-after">{{item3.respList[1].insureamount | numFilterAfter}}</span></span>万元)</span>
                                                                     </span>
@@ -268,7 +271,7 @@
                                                                         <span v-else>(共用额度：<span class="mony"><span class="mony-before">{{item3.respList[2].hbinsureamount | numFilterBefore}}</span>.<span class="mony-after">{{item3.respList[2].hbinsureamount | numFilterAfter}}</span></span>万元)</span>
                                                                     </span>
                                                                     <span v-else>
-                                                                         <span v-if="item3.respList[0].hbinsureamount > item3.respList[1].hbinsureamount">
+                                                                            <span v-if="item3.respList[0].hbinsureamount > item3.respList[1].hbinsureamount">
                                                                             (共用额度：<span class="mony"><span class="mony-before">{{item3.respList[0].hbinsureamount | numFilterBefore}}</span>.<span class="mony-after">{{item3.respList[0].hbinsureamount | numFilterAfter}}</span></span>万元)</span>
                                                                         <span v-else>(共用额度：<span class="mony"><span class="mony-before">{{item3.respList[1].hbinsureamount | numFilterBefore}}</span>.<span class="mony-after">{{item3.respList[1].hbinsureamount | numFilterAfter}}</span></span>万元)</span>
                                                                     </span>
@@ -298,22 +301,22 @@
                                                 </ul>
                                             </div>
                                         </div>
-                                </div> 
+                                    </div> 
 
 
-                                <!-- 计划的期望保费 -->
-                                <div class="plan-base" >
-                                    <p v-if="currentStatus == 1 || currentStatus == 2">本计划期望保费(元/人)：<span class="mony"><span class="mony-before">{{item1.premium | numFilterBefore}}</span>.<span class="mony-after">{{item1.premium | numFilterAfter}}</span></span></p>
-                                    <div v-else>
-                                        <span>合计保费：<span class="mony"><span class="mony-before">{{planHbFeeA[index1].allFee | numFilterBefore}}</span>.<span class="mony-after">{{planHbFeeA[index1].allFee | numFilterAfter}}</span></span>元/人 × {{planHbFeeA[index1].num}}人 = {{planHbFeeA[index1].planCalcFeeA | addDouHao}} 元</span>
-                                        <el-tooltip placement="top" class="item" effect="dark">
-                                            <div slot="content">申请设置条件为：{{item1.premium}}(元/人)</div>
-                                            <el-button class="hbchange"><i class="el-icon-warning-outline"></i>原申请保费</el-button>
-                                        </el-tooltip>
-                                    </div>
-                                </div> 
-                             </div>
-                         </div> 
+                                    <!-- 计划的期望保费 -->
+                                    <div class="plan-base" >
+                                        <p v-if="currentStatus == 1 || currentStatus == 2">本计划期望保费(元/人)：<span class="mony"><span class="mony-before">{{item1.premium | numFilterBefore}}</span>.<span class="mony-after">{{item1.premium | numFilterAfter}}</span></span></p>
+                                        <div v-else>
+                                            <span>合计保费：<span class="mony"><span class="mony-before">{{planHbFeeA[index1].allFee | numFilterBefore}}</span>.<span class="mony-after">{{planHbFeeA[index1].allFee | numFilterAfter}}</span></span>元/人 × {{planHbFeeA[index1].num}}人 = {{planHbFeeA[index1].planCalcFeeA | addDouHao}} 元</span>
+                                            <el-tooltip placement="top" class="item" effect="dark">
+                                                <div slot="content">申请设置条件为：{{item1.premium}}(元/人)</div>
+                                                <el-button class="hbchange"><i class="el-icon-warning-outline"></i>原申请保费</el-button>
+                                            </el-tooltip>
+                                        </div>
+                                    </div> 
+                                </div>
+                            </div> 
                         </div>
                         <div v-else class="no-success">
                             <p><i class="el-icon-loading"></i>正在拼命加载中，请稍等</p>
@@ -394,8 +397,6 @@ export default {
                             this.picList = res.data.data;
                             this.getPhotoList();
                         }
-                       
-                        
                     }else{
                        
                     }

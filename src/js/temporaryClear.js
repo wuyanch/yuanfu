@@ -50,7 +50,7 @@ exports.install = function(Vue, options) {
                     type: 'success'
                 }); 
             }else{
-                this.$message.error('暂存失败。程序错误o(╥﹏╥)o，请联系IT人员');
+                this.$message.error(response.data.msg);
             }   
             console.log('暂存结束');      
            return response.data.code

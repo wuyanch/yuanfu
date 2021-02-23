@@ -25,65 +25,202 @@
                         <div class="responsibility-part-content" v-for="(responsibilityItem,index1) in item.data" :key="index1">
                             <p class="content-title"><span>{{responsibilityItem.risktype}}</span></p>
                             <div class="content-clause" ref="touchmove" v-leftMove="{container: '[data-touchmove-con]'}" v-for="(allresponsibilityItem,index2) in responsibilityItem.responsibilityData" :key="allresponsibilityItem.responsibilityNameCode">
-                                <i v-if="allresponsibilityItem.ifMainInsurance == true"><img :src="zhu" alt=""></i>
-                                <i v-else><img :src="fu" alt=""></i>
-                                <span class="content-clause-name" @click="lookResponsibility(allresponsibilityItem.responsibilityNameCode)">{{allresponsibilityItem.riskshort}}<i class="el-icon-warning-outline"></i></span>
-                                <div class="content-clause-mony" v-if="allresponsibilityItem.subResponsibilityData == null">
-                                    <span>保额({{allresponsibilityItem.insuredUnit}})</span>
-                                    <el-input-number
-                                     type='number'
-                                    :min=0.1 
-                                    size="small"
-                                    @focus="handleFocus" 
-                                    @blur="handleblur"
-                                    @change="checkNo(index,index1,index2,null)"
-                                    v-model.trim="allresponsibilityItem.trueConfigurationStep" 
-                                    :step="allresponsibilityItem.defaultConfigurationStep">
-                                    </el-input-number>
-                                </div>
-                                <div class="content-clause-mony" v-else>
-                                        <span v-if="allresponsibilityItem.responsibilityNameCode == 110">门诊、住院是否共用额度</span>
-                                        <el-switch
-                                        v-if="allresponsibilityItem.responsibilityNameCode == 110"
-                                        v-model="allresponsibilityItem.ifDefaultConfiguration"
-                                        active-color="#6db9fe"
-                                        inactive-color="#d4d4d4">
-                                        </el-switch>
-                                </div>
-                                <div class="yl-comm" v-if="allresponsibilityItem.responsibilityNameCode == 110 && allresponsibilityItem.ifDefaultConfiguration == true">
-                                    <p v-if="allresponsibilityItem.subResponsibilityData[0].trueConfigurationStep > allresponsibilityItem.subResponsibilityData[1].trueConfigurationStep">共用额度：{{allresponsibilityItem.subResponsibilityData[0].trueConfigurationStep}}万元</p>
-                                    <p v-else>共用额度：{{allresponsibilityItem.subResponsibilityData[1].trueConfigurationStep}}万元</p>
-                                </div>
-                                <div class="sub-responsibility clear-self">
-                                    <div class="content-clause" v-for="(subresponsibilityItem,index3) in allresponsibilityItem.subResponsibilityData" :key="index3">
-                                        <span class="content-clause-name">{{subresponsibilityItem.subResponsibilityName}}</span>
-                                        <span>配置本项</span>
-                                        <el-switch
-                                        v-model="subresponsibilityItem.subIfDefaultConfiguration"
-                                        active-color="#6db9fe"
-                                        inactive-color="#d4d4d4"
-                                        @change='changeStatus($event,index3,index2,index1,index,allresponsibilityItem.responsibilityNameCode)'>
-                                        </el-switch>
-                                        <div class="content-clause-mony" v-if="subresponsibilityItem.subIfDefaultConfiguration == true">
-                                            <span>保额({{subresponsibilityItem.insuredUnit}})</span>
-                                            <el-input-number 
-                                            type='number'
-                                            :min=0.1
-                                            size="small" 
-                                            @focus="handleFocus" 
-                                            @blur="handleblur"
-                                            @change="checkNo(index,index1,index2,index3)" 
-                                            v-model.trim="subresponsibilityItem.trueConfigurationStep" 
-                                            :step="subresponsibilityItem.subDefaultConfigurationStep==null||subresponsibilityItem.subDefaultConfigurationStep==0?1:subresponsibilityItem.subDefaultConfigurationStep">
-                                            </el-input-number>
+                                <!-- <i v-if="allresponsibilityItem.ifMainInsurance == true"><img :src="allresponsibilityItem.ifMainInsurance == true?zhu:fu" alt=""></i>
+                                <i v-else><img :src="fu" alt=""></i> -->
+                               <div :class="allresponsibilityItem.ifOffShelf? 'need-remove-riskcode':''" >
+                                    <p v-if="allresponsibilityItem.ifOffShelf" :class="allresponsibilityItem.ifOffShelf ? 'need-remove-content':''">
+                                       已下架，需左滑删除<span v-show="allresponsibilityItem.riskReplace != null"> （推荐替换成{{allresponsibilityItem.riskReplace}}）</span>
+                                    </p>
+                                    <i><img :src="allresponsibilityItem.ifMainInsurance == true ? zhu:fu" alt="" /></i>
+                                    <span class="content-clause-name" @click="lookResponsibility(allresponsibilityItem.responsibilityNameCode)">{{allresponsibilityItem.riskshort}}<i class="el-icon-warning-outline"></i></span>
+                                    <!-- 如果没有子责任 -->
+                                    <div class="content-clause-mony" v-if="allresponsibilityItem.subResponsibilityData == null">
+                                        <span>保额({{allresponsibilityItem.insuredUnit}})</span>
+                                        <el-input-number
+                                        type='number'
+                                        :min=0.1 
+                                        size="small"
+                                        @focus="handleFocus" 
+                                        @blur="handleblur"
+                                        @change="checkNo(index,index1,index2,null)"
+                                        v-model.trim="allresponsibilityItem.trueConfigurationStep" 
+                                        :step="allresponsibilityItem.defaultConfigurationStep">
+                                        </el-input-number>
+                                    </div>
+                                    <!-- 如果有子责任 -->
+                                    <div class="content-clause-mony" v-else>
+                                            <span v-if="allresponsibilityItem.responsibilityNameCode == 110">门诊、住院是否共用额度</span>
+                                            <el-switch
+                                            v-if="allresponsibilityItem.responsibilityNameCode == 110"
+                                            v-model="allresponsibilityItem.ifDefaultConfiguration"
+                                            active-color="#6db9fe"
+                                            inactive-color="#d4d4d4">
+                                            </el-switch>
+                                    </div>
+                                    <!-- 如果是110险种 -->
+                                    <div class="yl-comm" v-if="allresponsibilityItem.responsibilityNameCode == 110 && allresponsibilityItem.ifDefaultConfiguration == true">
+                                        <p v-if="allresponsibilityItem.subResponsibilityData[0].trueConfigurationStep > allresponsibilityItem.subResponsibilityData[1].trueConfigurationStep">共用额度：{{allresponsibilityItem.subResponsibilityData[0].trueConfigurationStep}}万元</p>
+                                        <p v-else>共用额度：{{allresponsibilityItem.subResponsibilityData[1].trueConfigurationStep}}万元</p>
+                                    </div>
+                                    <!-- 如果有子责任且险种代码不为573 || 580 -->
+                                    <div class="sub-responsibility clear-self" v-if="allresponsibilityItem.responsibilityNameCode !='573' && allresponsibilityItem.responsibilityNameCode !='580'">
+                                        <div class="content-clause" v-for="(subresponsibilityItem,index3) in allresponsibilityItem.subResponsibilityData" :key="index3">
+                                            <span class="content-clause-name">{{subresponsibilityItem.subResponsibilityName}}</span>
+                                            <span>配置本项</span>
+                                            <el-switch
+                                            v-model="subresponsibilityItem.subIfDefaultConfiguration"
+                                            active-color="#6db9fe"
+                                            inactive-color="#d4d4d4"
+                                            @change='changeStatus($event,index3,index2,index1,index,allresponsibilityItem.responsibilityNameCode)'>
+                                            </el-switch>
+                                            <div class="content-clause-mony" v-if="subresponsibilityItem.subIfDefaultConfiguration == true">
+                                                <span>保额({{subresponsibilityItem.insuredUnit}})</span>
+                                                <el-input-number 
+                                                type='number'
+                                                :min=0.1
+                                                size="small" 
+                                                @focus="handleFocus" 
+                                                @blur="handleblur"
+                                                @change="checkNo(index,index1,index2,index3)" 
+                                                v-model.trim="subresponsibilityItem.trueConfigurationStep" 
+                                                :step="subresponsibilityItem.subDefaultConfigurationStep==null||subresponsibilityItem.subDefaultConfigurationStep==0?1:subresponsibilityItem.subDefaultConfigurationStep">
+                                                </el-input-number>
+                                            </div>
                                         </div>
                                     </div>
-                                </div>
-                                <div class="delete_item" @click="deleteItem(index,index1,index2)">
-                                   <span><i class="el-icon-delete"></i></span>
+                                    <!-- 如果有子责任且险种代码为573 || 580 -->
+                                     <div class="sub-responsibility clear-self" v-else>
+                                        <div class="content-clause" v-for="(subresponsibilityItem,index3) in allresponsibilityItem.subResponsibilityData" :key="index3">
+                                            <span class="content-clause-name">{{subresponsibilityItem.subResponsibilityName}}</span>
+                                            <span>配置本项</span>
+                                            <el-switch
+                                            v-model="subresponsibilityItem.subIfDefaultConfiguration"
+                                            active-color="#6db9fe"
+                                            inactive-color="#d4d4d4"
+                                            @change='changeStatus($event,index3,index2,index1,index,allresponsibilityItem.responsibilityNameCode)'>
+                                            </el-switch>
+                                            <div v-if="subresponsibilityItem.subResponsibilityNameCode=='573001' || subresponsibilityItem.subResponsibilityNameCode=='580001'">
+                                                <div class="content-clause-mony" v-if="subresponsibilityItem.subIfDefaultConfiguration == true">
+                                                    <span>保额({{subresponsibilityItem.insuredUnit}})</span>
+                                                    <el-input-number 
+                                                    type='number'
+                                                    :min=0.1
+                                                    size="small" 
+                                                    @focus="handleFocus" 
+                                                    @blur="handleblur"
+                                                    @change="checkNo(index,index1,index2,index3)" 
+                                                    v-model.trim="subresponsibilityItem.trueConfigurationStep" 
+                                                    :step="subresponsibilityItem.subDefaultConfigurationStep==null||subresponsibilityItem.subDefaultConfigurationStep==0?1:subresponsibilityItem.subDefaultConfigurationStep">
+                                                    </el-input-number>
+                                                </div>
+                                            </div>
+                                            <div v-else-if="subresponsibilityItem.subResponsibilityNameCode=='573002'">
+                                                <div class="content-clause-mony" v-if="subresponsibilityItem.subIfDefaultConfiguration == true">
+                                                    <span>保额({{subresponsibilityItem.insuredUnit}})</span>
+                                                    <el-input-number 
+                                                    type='number'
+                                                    :min=0.1
+                                                    :max=Number(((allresponsibilityItem.subResponsibilityData[0].trueConfigurationStep)*0.3).toFixed(2))
+                                                    size="small" 
+                                                    @focus="handleFocus" 
+                                                    @blur="handleblur"
+                                                    @change="checkNo(index,index1,index2,index3)" 
+                                                    v-model.trim="subresponsibilityItem.trueConfigurationStep" 
+                                                    :step="subresponsibilityItem.subDefaultConfigurationStep==null||subresponsibilityItem.subDefaultConfigurationStep==0?1:subresponsibilityItem.subDefaultConfigurationStep">
+                                                    </el-input-number>
+                                                </div>
+                                            </div>
+                                            <!-- <div v-else-if="subresponsibilityItem.subResponsibilityNameCode=='573003'">
+                                                <div class="content-clause-mony" v-if="subresponsibilityItem.subIfDefaultConfiguration == true">
+                                                    <span>保额({{subresponsibilityItem.insuredUnit}})</span>
+                                                    <el-input-number 
+                                                    type='number'
+                                                    :min=0.1
+                                                    :max="(allresponsibilityItem.subResponsibilityData[0].trueConfigurationStep)*0.5"
+                                                    size="small" 
+                                                    @focus="handleFocus" 
+                                                    @blur="handleblur"
+                                                    @change="checkNo(index,index1,index2,index3)" 
+                                                    v-model.trim="subresponsibilityItem.trueConfigurationStep" 
+                                                    :step="subresponsibilityItem.subDefaultConfigurationStep==null||subresponsibilityItem.subDefaultConfigurationStep==0?1:subresponsibilityItem.subDefaultConfigurationStep">
+                                                    </el-input-number>
+                                                </div>
+                                            </div> -->
+                                            <div v-else-if="subresponsibilityItem.subResponsibilityNameCode=='580002'">
+                                                <div class="content-clause-mony" v-if="subresponsibilityItem.subIfDefaultConfiguration == true">
+                                                    <span>保额({{subresponsibilityItem.insuredUnit}})</span>
+                                                    <el-input-number 
+                                                    type='number'
+                                                    :min=0.1
+                                                    :max="(allresponsibilityItem.subResponsibilityData[0].trueConfigurationStep)*1"
+                                                    size="small" 
+                                                    @focus="handleFocus" 
+                                                    @blur="handleblur"
+                                                    @change="checkNo(index,index1,index2,index3)" 
+                                                    v-model.trim="subresponsibilityItem.trueConfigurationStep" 
+                                                    :step="subresponsibilityItem.subDefaultConfigurationStep==null||subresponsibilityItem.subDefaultConfigurationStep==0?1:subresponsibilityItem.subDefaultConfigurationStep">
+                                                    </el-input-number>
+                                                </div>
+                                            </div>
+                                            <div v-else-if="subresponsibilityItem.subResponsibilityNameCode=='580003'">
+                                                <div class="content-clause-mony" v-if="subresponsibilityItem.subIfDefaultConfiguration == true">
+                                                    <span>保额({{subresponsibilityItem.insuredUnit}})</span>
+                                                    <el-input-number 
+                                                    type='number'
+                                                    :min=0.1
+                                                    :max=Number(((allresponsibilityItem.subResponsibilityData[0].trueConfigurationStep)*0.2).toFixed(2))
+                                                    size="small" 
+                                                    @focus="handleFocus" 
+                                                    @blur="handleblur"
+                                                    @change="checkNo(index,index1,index2,index3)" 
+                                                    v-model.trim="subresponsibilityItem.trueConfigurationStep" 
+                                                    :step="subresponsibilityItem.subDefaultConfigurationStep==null||subresponsibilityItem.subDefaultConfigurationStep==0?1:subresponsibilityItem.subDefaultConfigurationStep">
+                                                    </el-input-number>
+                                                </div>
+                                            </div>
+                                            <div v-else>
+                                                <div class="content-clause-mony" v-if="subresponsibilityItem.subIfDefaultConfiguration == true">
+                                                    <span>保额({{subresponsibilityItem.insuredUnit}})</span>
+                                                    <el-input-number 
+                                                    type='number'
+                                                    :min=0.1
+                                                    :max=Number(((allresponsibilityItem.subResponsibilityData[0].trueConfigurationStep)*0.5).toFixed(2))
+                                                    size="small" 
+                                                    @focus="handleFocus" 
+                                                    @blur="handleblur"
+                                                    @change="checkNo(index,index1,index2,index3)" 
+                                                    v-model.trim="subresponsibilityItem.trueConfigurationStep" 
+                                                    :step="subresponsibilityItem.subDefaultConfigurationStep==null||subresponsibilityItem.subDefaultConfigurationStep==0?1:subresponsibilityItem.subDefaultConfigurationStep">
+                                                    </el-input-number>
+                                                </div>
+                                            </div>
+                                            <!-- <div v-else-if="subresponsibilityItem.subResponsibilityNameCode=='580005'">
+                                                <div class="content-clause-mony" v-if="subresponsibilityItem.subIfDefaultConfiguration == true">
+                                                    <span>保额({{subresponsibilityItem.insuredUnit}})</span>
+                                                    <el-input-number 
+                                                    type='number'
+                                                    :min=0.1
+                                                    :max="(allresponsibilityItem.subResponsibilityData[index3-1].trueConfigurationStep)*0.5"
+                                                    size="small" 
+                                                    @focus="handleFocus" 
+                                                    @blur="handleblur"
+                                                    @change="checkNo(index,index1,index2,index3)" 
+                                                    v-model.trim="subresponsibilityItem.trueConfigurationStep" 
+                                                    :step="subresponsibilityItem.subDefaultConfigurationStep==null||subresponsibilityItem.subDefaultConfigurationStep==0?1:subresponsibilityItem.subDefaultConfigurationStep">
+                                                    </el-input-number>
+                                                </div>
+                                            </div> -->
+
+
+                                        </div>
+                                    </div>
+
+                                    <div class="delete_item" @click="deleteItem(index,index1,index2)">
+                                        <span><i class="el-icon-delete"></i></span>
+                                    </div>
+
                                 </div>
                             </div>
-
                         </div>
                         <!-- 复制，添加按钮 -->
                         <p class="tip-move"><span style="color:red">*</span>左滑险种可以删除</p>
@@ -212,7 +349,9 @@ export default {
             loading:false,//点击暂存出现的圈圈
             padeLoading: true,
             foucesTimer:null,//ios键盘回落参数
-            
+            riskReplaceShlef:[],//20210121新增的上下架的数组
+            ifRiskReplaceShlef:false,//20210121新增的上下架的标红，默认为没有下架产品
+            shelfProduct:''//20210126新增的上下架的标红，下架产品
         }
     },
     created(){
@@ -242,6 +381,44 @@ export default {
                 })
                 
             }
+            // 573险种第一个子责任牵制其他子责任
+            if(this.configurationResponsibility.domains[index].data[index1].responsibilityData[index2].responsibilityNameCode == '573' && index3 == 0){
+                // 30%
+                let threePoint = (this.configurationResponsibility.domains[index].data[index1].responsibilityData[index2].subResponsibilityData[index3].trueConfigurationStep)*0.3;
+                // 50%
+                let fivePoint = (this.configurationResponsibility.domains[index].data[index1].responsibilityData[index2].subResponsibilityData[index3].trueConfigurationStep)*0.5;
+                
+                if(this.configurationResponsibility.domains[index].data[index1].responsibilityData[index2].subResponsibilityData[1].trueConfigurationStep > threePoint ){
+                    this.$set(this.configurationResponsibility.domains[index].data[index1].responsibilityData[index2].subResponsibilityData[1],"trueConfigurationStep", Number(threePoint.toFixed(2)))
+                }
+                if(this.configurationResponsibility.domains[index].data[index1].responsibilityData[index2].subResponsibilityData[2].trueConfigurationStep > threePoint ){
+                    this.$set(this.configurationResponsibility.domains[index].data[index1].responsibilityData[index2].subResponsibilityData[2],"trueConfigurationStep", Number(fivePoint.toFixed(2)))
+                }
+            }
+            //580险种第一个子责任牵制其他子责任
+            if(this.configurationResponsibility.domains[index].data[index1].responsibilityData[index2].responsibilityNameCode == '580' && index3 == 0){
+                // 100%
+                let onePointTemp = (this.configurationResponsibility.domains[index].data[index1].responsibilityData[index2].subResponsibilityData[index3].trueConfigurationStep)*1;
+                // 20%
+                let twoPointTemp = (this.configurationResponsibility.domains[index].data[index1].responsibilityData[index2].subResponsibilityData[index3].trueConfigurationStep)*0.2;
+               
+                // 50%
+                let fivePointTemp = (this.configurationResponsibility.domains[index].data[index1].responsibilityData[index2].subResponsibilityData[index3].trueConfigurationStep)*0.5;
+
+                if(this.configurationResponsibility.domains[index].data[index1].responsibilityData[index2].subResponsibilityData[1].trueConfigurationStep > onePointTemp ){
+                    this.$set(this.configurationResponsibility.domains[index].data[index1].responsibilityData[index2].subResponsibilityData[1],"trueConfigurationStep", Number(onePointTemp.toFixed(2)))
+                }
+                if(this.configurationResponsibility.domains[index].data[index1].responsibilityData[index2].subResponsibilityData[2].trueConfigurationStep > twoPointTemp ){
+                    this.$set(this.configurationResponsibility.domains[index].data[index1].responsibilityData[index2].subResponsibilityData[2],"trueConfigurationStep", Number(twoPointTemp.toFixed(2)))
+                }
+                if(this.configurationResponsibility.domains[index].data[index1].responsibilityData[index2].subResponsibilityData[3].trueConfigurationStep > fivePointTemp ){
+                    this.$set(this.configurationResponsibility.domains[index].data[index1].responsibilityData[index2].subResponsibilityData[3],"trueConfigurationStep", Number(fivePointTemp.toFixed(2)))
+                }
+                if(this.configurationResponsibility.domains[index].data[index1].responsibilityData[index2].subResponsibilityData[4].trueConfigurationStep > fivePointTemp ){
+                    this.$set(this.configurationResponsibility.domains[index].data[index1].responsibilityData[index2].subResponsibilityData[4],"trueConfigurationStep", Number(fivePointTemp.toFixed(2)))
+                }
+            }
+            
         },
         //switch--change事件
         changeStatus: function($event,index3,index2,index1,index,code){
@@ -615,14 +792,23 @@ export default {
         },
         //暂存
         tempStorage: function(){
+            this.checkTrueShelf();
+            // this.ifRiskReplaceShlef = false;
             if(document.getElementsByClassName('configuration-responsibility-box')[0].textContent != ''){
-                this.loading = true;
-                let quotationInformation = {"configurationResponsibility":this.configurationResponsibility.domains};
-                    localStorage.setItem("quotationInformation_3",JSON.stringify(quotationInformation));
-                localStorage.setItem('quotationInformation_tempsavestep',2);
-                this.$temporary().then((code)=>{
-                    this.loading = false;
-                });
+                if(!this.ifRiskReplaceShlef){//没有下架的产品
+                    this.loading = true;
+                    let quotationInformation = {"configurationResponsibility":this.configurationResponsibility.domains};
+                        localStorage.setItem("quotationInformation_3",JSON.stringify(quotationInformation));
+                    localStorage.setItem('quotationInformation_tempsavestep',2);
+                    this.$temporary().then((code)=>{
+                        this.loading = false;
+                    });
+                }else{
+                     this.$alert("计划中含有下架产品"+this.shelfProduct.slice(0,this.shelfProduct.length-1)+"，请删除下架产品再操作",'',{
+                        confirmButtonText:'好的，我知道了'
+                    }).catch(()=>{})
+                }
+                
             }else{
                 this.$message.error('页面还没加载完，请耐心等待或手动刷新')
             }
@@ -630,18 +816,27 @@ export default {
         //下一步
         goNext: function(){
             if(document.getElementsByClassName('configuration-responsibility-box')[0].textContent != ''){
-                let checkPlanHasMainA = this.checkPlanHasMain();
-                console.log(checkPlanHasMainA)
-                console.log(checkPlanHasMainA.includes(false))
-                if(checkPlanHasMainA.includes(false)){
-                    this.$alert('请确保每个计划都有一个主险','',{
+                this.checkTrueShelf();
+                 if(!this.ifRiskReplaceShlef){//没有下架的产品
+                    let checkPlanHasMainA = this.checkPlanHasMain();
+                    console.log(checkPlanHasMainA)
+                    console.log(checkPlanHasMainA.includes(false))
+                    if(checkPlanHasMainA.includes(false)){
+                        this.$alert('请确保每个计划都有一个主险','',{
+                            confirmButtonText:'好的，我知道了'
+                        }).catch(()=>{})
+                    }else{
+                        let quotationInformation = {"configurationResponsibility":this.configurationResponsibility.domains};
+                        localStorage.setItem("quotationInformation_3",JSON.stringify(quotationInformation));
+                        this.$router.push({path:'procedureThree'});
+                    }
+                }else{
+                    this.$alert("计划中含有下架产品"+this.shelfProduct.slice(0,this.shelfProduct.length-1)+"，请删除下架产品再操作",'',{
                         confirmButtonText:'好的，我知道了'
                     }).catch(()=>{})
-                }else{
-                    let quotationInformation = {"configurationResponsibility":this.configurationResponsibility.domains};
-                    localStorage.setItem("quotationInformation_3",JSON.stringify(quotationInformation));
-                    this.$router.push({path:'procedureThree'});
+                    
                 }
+                
                 
             }else{
                 this.$message.error('页面还没加载完，请耐心等待')
@@ -775,6 +970,45 @@ export default {
                     confirmButtonText:'好的，我明白了'
                 }).catch(()=>{})
             })
+        },
+        //在下一步和暂存检查是否有删除干净应该删除的险种
+        checkTrueShelf: function(){
+            let that = this;
+            this.ifRiskReplaceShlef = false;
+            this.checkShelf();
+            this.riskReplaceShlef.forEach(element => {
+                element.forEach(index => {
+                    if(index.ifOffShelf){//还含有下架的产品
+                        that.ifRiskReplaceShlef = true;
+                    }
+                })
+            })
+        },
+        // 看是否含有下架产品-20210121
+        checkShelf: function(){
+            let that = this, tempShelf = [], tempRiskReplaceShlef = [];
+            this.shelfProduct = '';
+            that.riskReplaceShlef = [];
+            that.configurationResponsibility.domains.forEach(element => {
+                tempRiskReplaceShlef = [];
+                element.data.forEach(index => {//进入每个data里面
+                    index.responsibilityData.forEach(indexData => {
+                        if(indexData.ifOffShelf == undefined){
+                            tempRiskReplaceShlef.push({ifOffShelf:false, riskReplace:null})
+                        }else{
+                            tempRiskReplaceShlef.push({ifOffShelf:indexData.ifOffShelf, riskReplace:indexData.riskReplace})
+                        }
+                        if(tempShelf.indexOf(indexData.responsibilityNameCode) == -1 && indexData.ifOffShelf != undefined && indexData.ifOffShelf == true){
+                                this.shelfProduct +=  indexData.responsibilityNameCode + indexData.riskshort + '、'  ;
+                                tempShelf.push(indexData.responsibilityNameCode);
+                        }
+                    })
+                })
+                that.riskReplaceShlef.push(tempRiskReplaceShlef);
+            });
+            // this.$forceUpdate();//强制刷新，，看看有没有效果
+            console.log("我是新增的上下架炮灰---初始化")
+            console.log(that.riskReplaceShlef);
         },
         //获取所有的能添加的数据 /index/getRiskData
         getRiskData: function(){
@@ -951,6 +1185,17 @@ export default {
             }
         }
         
+    }
+    .need-remove-riskcode{
+        border:2px solid red;
+        padding-bottom: 10px;
+        .need-remove-content{
+            padding: 5px 0 5px 5px;
+            background: red;
+            color: white;
+            font-size: 14px;
+            margin-bottom: 10px;
+        }
     }
     .tip-move{
             color:#bfbfbf;
@@ -1292,8 +1537,8 @@ export default {
         
     }
     .el-input-number--small,.el-input--small .el-input__inner{
-        height: 32px;
-        line-height: 32px;
+        height: 36px;
+        line-height: 34px;
     }
 }
 </style>
